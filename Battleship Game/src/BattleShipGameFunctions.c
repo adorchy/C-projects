@@ -1,106 +1,36 @@
 /*
- ============================================================================
- Name        : Battleship Game
- 1 player Vs AI
+ * BattleShipGameFunctions.c
+ *
+ *      Author: Arnaud
  */
 
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#define LIGNEMAX 10
-#define LIGNEMIN 1
-#define COLMAX 10
-#define COLMIN 1
-#define NBOAT 2
-#define NFLEET 1
+#include "HeaderBattleShipGame.h"
 
 
 
-typedef struct Cellule {
-	int ligne;
-	int col;
-}Cellule;
+void Intro (){
 
-typedef struct Bateau {
-	Cellule cell[NBOAT];
-}Bateau;
+	printf ("\n\n");
+	printf ("	 _           _   _   _           _     _\n");
+	printf ("	| |         | | | | | |         | |   (_)\n");
+	printf ("	| |__   __ _| |_| |_| | ___  ___| |__  _ _ __\n");
+	printf ("	| '_ \\ / _` | __| __| |/ _ \\/ __| '_ \\| | '_ \\ \n");
+	printf ("	| |_) | (_| | |_| |_| |  __/\\__ \\ | | | | |_) |\n");
+	printf ("	|_.__/ \\__,_|\\__|\\__|_|\\___||___/_| |_|_| .__/\n");
+	printf ("	                                        | |\n");
+	printf ("	                                        |_|\n");
 
-typedef struct Flotte {
-	Bateau bat[NFLEET];
-}Flotte;
-
-enum BOOL{
-    True,False
-};
-
-enum Result{
-    Stricken,Missed
-};
-
-void Intro (int playerNumb);
-void InitGrid (char Grid[LIGNEMAX+1][COLMAX+1]);
-void DisplayGrid (char Grid[LIGNEMAX+1][COLMAX+1]);
-Cellule InitCell ();
-int ParaAcq (int Max, int Min);
-Cellule CellPara ();
-Cellule AICellPara ();
-Cellule CellParaCheck (int player);
-Bateau BoatInit (int player);
-Flotte FleetInit (int player);
-void InitBoatCounter (int *nbBoat);
-enum BOOL CompareCell(Cellule mCell, Cellule pCell);
-enum BOOL CompareCellBat (Cellule Cell, Bateau Bat);
-enum BOOL CompareCellFlot (Cellule Cell, Flotte Flot);
-enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player);
-void Win (int playerNumb, int nbBoat);
-
-/* Programme qui simule le jeu de la bataille navale.
-
- */
-int main() {
-
-	// Joueur
-	int nbBoat1;  // Nombre de bateaux
-	char PlayerGrid [LIGNEMAX+1][COLMAX+1];
-	InitGrid (PlayerGrid);
-	Intro (1);
-	Flotte fleet1=FleetInit(1);
-	InitBoatCounter (&nbBoat1);
-
-	// AI
-	srand (time(NULL));
-	int nbBoat2;  // Nombre de bateaux
-	char AIGrid [LIGNEMAX+1][COLMAX+1];
-	InitGrid (AIGrid);
-	Intro (2);
-	Flotte fleet2=FleetInit(0);
-	InitBoatCounter (&nbBoat2);
+	printf ("   	  __ _  __ _ _ __ ___   ___ \n");
+	printf ("   	 / _` |/ _` | '_ ` _ \\ / _ \\\n");
+	printf ("   	| (_| | (_| | | | | | |  __/\n");
+	printf ("   	 \\__, |\\__,_|_| |_| |_|\\___|\n");
+	printf ("   	  __/ |\n");
+	printf ("   	 |___/\n\n");
 
 
-	while (nbBoat1>0 && nbBoat2>0){ // tant que les 2 joueurs ont encore 1 bateau
-		printf ("Player 1 turn, %d boat left\n", nbBoat1);
-		DisplayGrid (PlayerGrid);
-		if (Attack (fleet2, PlayerGrid, 1)==Stricken){
-			nbBoat2--;
-			Win (1,nbBoat2);
-		}
-		printf ("AI turn, %d boat left\n", nbBoat2);
-		if (Attack (fleet1, AIGrid, 0)==Stricken){
-			nbBoat1--;
-			Win (2,nbBoat1);
-		}
-	}
+	printf("Player Fleet formation\n");
 
-	return 0;
-}
 
-// Procédure dont la fonction est d'afficher un texte générique d'introduction
-void Intro (int playerNumb){
-	printf("Player %i\n", playerNumb);
-	printf("Fleet formation\n");
 }
 
 // Procédure dont la fonction est de créer une grille qui permet de vérifier si les coordonnées de 2 bateaux sont identiques et
@@ -135,16 +65,16 @@ Cellule InitCell () {
 }
 
 // Fonction de saisie d'un entier
-int ParaAcq (int Max, int Min) {
-	int isDigit=0;
+int GetValidInt (int Max, int Min) {
+	int isValid=0;
 	int para=-1;
-	while (isDigit==0){
+	while (isValid==0){
 		scanf("%i",&para);
 		if (para<Min || para>Max){
 			fflush (stdin);
 			printf ("incorrect parameters, please try again\n");
 		} else {
-			isDigit=1;
+			isValid=1;
 		}
 	}
 
@@ -153,20 +83,20 @@ int ParaAcq (int Max, int Min) {
 
 // Fonction remplissage d'une cellule
 // Utilise fonction d'initialisation d'une cellule et la fonction de saisie d'un entier
-Cellule CellPara (){
+Cellule GetCoordinates (){
 	Cellule cellule=InitCell();
-	printf ("Enter coordinates\n");
+	printf ("\nEnter coordinates\n");
 	printf ("Line: Enter an integer from 1 to 10\n");
-	cellule.ligne=ParaAcq(LIGNEMAX, LIGNEMIN);
+	cellule.ligne=GetValidInt(LIGNEMAX, LIGNEMIN);
 	printf ("Row: Enter an integer from  de 1 to 10\n");
-	cellule.col=ParaAcq(COLMAX, COLMIN);
+	cellule.col=GetValidInt(COLMAX, COLMIN);
 
 	return cellule;
 }
 
 // Fonction remplissage aléatoire d'une cellule, simule une AI
 // Utilise fonction d'initialisation d'une cellule et la fonction de saisie d'un entier
-Cellule AICellPara (){
+Cellule AIGetCoordinates (){
 	Cellule cellule=InitCell();
 	cellule.ligne= rand() % LIGNEMAX + LIGNEMIN;
 	cellule.col= rand() % COLMAX + COLMIN;
@@ -174,12 +104,12 @@ Cellule AICellPara (){
 }
 
 // Fonction remplissage et de validation d'une cellule
-Cellule CellParaCheck (int player){
+Cellule CoordinatesCheck (int player){
 	Cellule cellule;
 	if (player==1){
-		cellule=CellPara();
+		cellule=GetCoordinates();
 	} else {
-		cellule=AICellPara();
+		cellule=AIGetCoordinates();
 	}
 
 	static char grid [LIGNEMAX+1][COLMAX+1];
@@ -194,7 +124,7 @@ Cellule CellParaCheck (int player){
 
 	initgrid++;
 	int check=0;
-	while (check==0){ // empêcher le joueur de choisir 2 fois la même position
+	while (check==0){ // empêcher de choisir 2 fois la même position
 		if (grid[cellule.ligne][cellule.col]=='-'){
 			grid[cellule.ligne][cellule.col]=1;
 			check=1;
@@ -202,11 +132,11 @@ Cellule CellParaCheck (int player){
 		} else {
 			printf ("Error, coordinates already used\n");
 			if (player==1){
-				cellule=CellPara();
+				cellule=GetCoordinates();
 			}
 
 			if (player==0){
-				cellule=AICellPara();
+				cellule=AIGetCoordinates();
 			}
 		}
 	}
@@ -214,14 +144,12 @@ Cellule CellParaCheck (int player){
 	return cellule;
 }
 
-
-
 // Fonction d'initialisation de 2 bateaux
 Bateau BoatInit (int player){
 	Bateau newbat;
 	int i=0;
 	for (i=0;i<NBOAT;i++){
-		newbat.cell[i]=CellParaCheck(player);
+		newbat.cell[i]=CoordinatesCheck(player);
 	}
 	return newbat;
 }
@@ -235,7 +163,6 @@ Flotte FleetInit (int player){
 	}
 	return newflotte;
 }
-
 
 // Procédure initialisant nbBoat
 void InitBoatCounter (int *nbBoat){
@@ -252,7 +179,7 @@ enum BOOL CompareCell(Cellule mCell, Cellule pCell){
 }
 
 // Fonction qui vérifie si une cellule appartient à un bateau, cette fonction renvoie vrai ou faux
-enum BOOL CompareCellBat (Cellule Cell, Bateau Bat){
+enum BOOL CompareCellBoat (Cellule Cell, Bateau Bat){
 	int i;
 	for (i=0;i<NBOAT;i++){
 		if(CompareCell(Cell,Bat.cell[i])==True){
@@ -263,10 +190,10 @@ enum BOOL CompareCellBat (Cellule Cell, Bateau Bat){
 }
 
 // Fonction qui vérifie si une cellule appartient à une flotte, cette fonction renvoie vrai ou faux
-enum BOOL CompareCellFlot (Cellule Cell, Flotte Flot){
+enum BOOL CompareCellFleet (Cellule Cell, Flotte Flot){
 	int i;
 	for (i=0;i<NFLEET;i++){
-		if(CompareCellBat(Cell,Flot.bat[i])==True){
+		if(CompareCellBoat(Cell,Flot.bat[i])==True){
 			return True;
 		}
 	}
@@ -278,12 +205,12 @@ enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player){
 	printf ("Choose a cell to attack\n");
 	Cellule Torpedo;
 	if (player==1){ // 1 correspond au player
-		Torpedo=CellPara();
+		Torpedo=GetCoordinates();
 	} else {
-		Torpedo=AICellPara();
+		Torpedo=AIGetCoordinates();
 	}
 
-	if (CompareCellFlot(Torpedo,fleet)==True){
+	if (CompareCellFleet(Torpedo,fleet)==True){
 		if (Grid[Torpedo.ligne][Torpedo.col]=='-'){ // empêcher de valider plusieur fois une touche à la même position
 			printf("Stricken\n");
 			printf("\n");
@@ -299,9 +226,6 @@ enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player){
 	return Missed;
 
 }
-
-
-
 
 // Procédure pour déterminer si un joueur à gagné.
 void Win (int playerNumb, int nbBoat){
