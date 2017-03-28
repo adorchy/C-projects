@@ -59,6 +59,6 @@ void InitBoatCounter (int *nbBoat);
 enum BOOL CompareCell(Cellule mCell, Cellule pCell);
 enum BOOL CompareCellBoat (Cellule Cell, Bateau Bat);
 enum BOOL CompareCellFleet (Cellule Cell, Flotte Flot);
-enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player);
+enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player, int *BoatNumber);
 void Win (int playerNumb, int nbBoat);
 

@@ -201,7 +201,7 @@ enum BOOL CompareCellFleet (Cellule Cell, Flotte Flot){
 }
 
 // Fonction permettant player d'attaquer
-enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player){
+enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player, int *BoatNumber){
 	printf ("Choose a cell to attack\n");
 	Cellule Torpedo;
 	if (player==1){ // 1 correspond au player
@@ -215,6 +215,7 @@ enum Result Attack(Flotte fleet, char Grid[LIGNEMAX+1][COLMAX+1], int player){
 			printf("Stricken\n");
 			printf("\n");
 			Grid[Torpedo.ligne][Torpedo.col]='s';
+			*BoatNumber=*BoatNumber-1;
 			return Stricken;
 		}
 	}

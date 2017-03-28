@@ -35,13 +35,11 @@ int main() {
 	while (PlayerBoat>0 && AIBoat>0){ // As long as the player and AI have at least one boat
 		printf ("Player 1 turn, %d boat left\n", PlayerBoat);
 		DisplayGrid (PlayerGrid);
-		if (Attack (fleet2, PlayerGrid, 1)==Stricken){
-			AIBoat--;
+		if (Attack (fleet2, PlayerGrid, 1, &AIBoat)==Stricken){
 			Win (1,AIBoat);
 		}
 		printf ("AI turn, %d boat left\n", AIBoat);
-		if (Attack (fleet1, AIGrid, 0)==Stricken){
-			PlayerBoat--;
+		if (Attack (fleet1, AIGrid, 0, &PlayerBoat)==Stricken){
 			Win (2,PlayerBoat);
 		}
 	}
