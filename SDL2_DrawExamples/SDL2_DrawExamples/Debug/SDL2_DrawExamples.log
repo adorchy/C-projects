@@ -1,0 +1,7 @@
+﻿  Main.cpp
+c:\users\arnaud\documents\programming\c projects\sdl2_drawexamples\sdl2_drawexamples\main.cpp(94): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1270): note: voir la déclaration de 'scanf'
+c:\users\arnaud\documents\programming\c projects\sdl2_drawexamples\sdl2_drawexamples\main.cpp(285): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
+c:\users\arnaud\documents\programming\c projects\sdl2_drawexamples\sdl2_drawexamples\main.cpp(293): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
+  SDL2_DrawExamples.vcxproj -> C:\Users\Arnaud\Documents\Programming\C projects\SDL2_DrawExamples\Debug\SDL2_DrawExamples.exe
+  SDL2_DrawExamples.vcxproj -> C:\Users\Arnaud\Documents\Programming\C projects\SDL2_DrawExamples\Debug\SDL2_DrawExamples.pdb (Full PDB)
