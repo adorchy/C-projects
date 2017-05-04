@@ -1,0 +1,13 @@
+﻿  Main.cpp
+c:\users\arnaud\documents\programming\c projects\editandreadfile\editandreadfile\main.cpp(42): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1270): note: voir la déclaration de 'scanf'
+c:\users\arnaud\documents\programming\c projects\editandreadfile\editandreadfile\main.cpp(74): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: voir la déclaration de 'fopen'
+c:\users\arnaud\documents\programming\c projects\editandreadfile\editandreadfile\main.cpp(76): warning C4996: 'strerror': This function or variable may be unsafe. Consider using strerror_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\string.h(178): note: voir la déclaration de 'strerror'
+c:\users\arnaud\documents\programming\c projects\editandreadfile\editandreadfile\main.cpp(141): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: voir la déclaration de 'fopen'
+c:\users\arnaud\documents\programming\c projects\editandreadfile\editandreadfile\main.cpp(143): warning C4996: 'strerror': This function or variable may be unsafe. Consider using strerror_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\string.h(178): note: voir la déclaration de 'strerror'
+  EditAndReadFile.vcxproj -> C:\Users\Arnaud\Documents\Programming\C projects\EditAndReadFile\Debug\EditAndReadFile.exe
+  EditAndReadFile.vcxproj -> C:\Users\Arnaud\Documents\Programming\C projects\EditAndReadFile\Debug\EditAndReadFile.pdb (Full PDB)
