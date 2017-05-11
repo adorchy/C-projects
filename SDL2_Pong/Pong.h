@@ -9,18 +9,19 @@
 
 #include "Define.h"
 
-typedef struct Racket{
+typedef struct PongRacket{
     double x,y;
+    int w,h;
 
-}Racket;
+}PongRacket;
 
-typedef struct Score{
-    int player, enemy;
+typedef struct PongScore{
+    int player, AI;
 
-}score;
+}PongScore;
 
 typedef struct PongBall{
-    float px,py,sx,sy;
+    float px, py, sx, sy;
     int radius;
 
 }PongBall;
@@ -33,6 +34,15 @@ typedef struct DisplayPongGame{
 
 }DisplayPongGame;
 
+typedef struct PongGame{
+    DisplayPongGame displayGame;
+    PongBall ball;
+    PongRacket racket1;
+    PongRacket racket2;
+    PongScore score;
+
+}PongGame;
+
 
 enum BOOL{
     True,False
@@ -40,19 +50,21 @@ enum BOOL{
 
 
 //prototypes
-int init(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myGame, PongBall *ball);
-void destroy(DisplayPongGame *myGame);
-void handleEvents(int *isRunning, Racket *racket1, Racket *racket2);
+void initPongGame (PongGame *myGame);
+int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
+
+void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2);
 void delay(unsigned int frameLimit);
 
-void renderRackets(DisplayPongGame *myGame,Racket *dep,Racket *dep2 );
-void RenderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
-void RenderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B);
+void renderRackets(PongGame *myGame);
+void renderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
+void renderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B);
+void renderPongGame (PongGame myGame);
 void MoveBall(PongBall Ball);
 void HandleAI ();
-void HandlePlayerScore ();
-void HandleAIScore ();
+void HandleScore ();
 
 enum BOOL CheckCollisionWalls ();
 enum BOOL CheckCollisionRackets ();
 
+void destroy(DisplayPongGame *myGame);

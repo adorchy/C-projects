@@ -1,24 +1,47 @@
 #include "Pong.h"
 
+void initPongGame (PongGame *myGame){
 
-int init(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myGame, PongBall *ball){
+ myGame->ball.px=SCREEN_WIDTH/3;
+ myGame->ball.py=SCREEN_HEIGHT/2;
+ myGame->ball.sx=1.0;
+ myGame->ball.sy=0.25;
+ myGame->ball.radius=12;
+
+ //racket 1
+ myGame->racket1.x=0;
+ myGame->racket1.y=0;
+ myGame->racket1.h=100;
+ myGame->racket1.w=20;
+
+ //racket 2
+ myGame->racket2.x=SCREEN_WIDTH-20;
+ myGame->racket2.y=0;
+ myGame->racket2.h=100;
+ myGame->racket2.w=20;
+
+ //score
+ myGame->score.AI=0;
+ myGame->score.player=0;
+
+}
+
+int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *displayGame){
 
 
-    myGame->g_pWindow=NULL;
-    myGame->g_pRenderer=NULL;
-    myGame->g_psurface=NULL;
-    ball->px=SCREEN_WIDTH/4;
-    ball->py=SCREEN_HEIGHT/2;
+    displayGame->g_pWindow=NULL;
+    displayGame->g_pRenderer=NULL;
+    displayGame->g_psurface=NULL;
 
     //initialize SDL
 
     if(SDL_Init(SDL_INIT_VIDEO)>=0) // Loading video (return 0 on success)
     {
             //if succeeded create our window
-            myGame->g_pWindow=SDL_CreateWindow(title,xpos,ypos,width,height,flags);
+            displayGame->g_pWindow=SDL_CreateWindow(title,xpos,ypos,width,height,flags);
             //if succeeded create window, create our render
-            if(myGame->g_pWindow!=NULL){
-                myGame->g_pRenderer=SDL_CreateRenderer(myGame->g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
+            if(displayGame->g_pWindow!=NULL){
+                displayGame->g_pRenderer=SDL_CreateRenderer(displayGame->g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
 
             }
 
@@ -33,44 +56,42 @@ int init(char *title, int xpos,int ypos,int width, int height,int flags,DisplayP
 
 }
 
-
-
-void renderRackets(DisplayPongGame *myGame,Racket *racket1,Racket *racket2 ) {
+void renderRackets(PongGame *myGame) {
 
 
        //Définition du rectangle 1 a dessiner
         SDL_Rect rectangle;
-        rectangle.x=0;//debut x
-        rectangle.y=racket1->y;//debut y
-        rectangle.w=20; //Largeur
-        rectangle.h=100; //Hauteur
+        rectangle.x=myGame->racket1.x;//debut x
+        rectangle.y=myGame->racket1.y;//debut y
+        rectangle.w=myGame->racket1.w; //Largeur
+        rectangle.h=myGame->racket1.h; //Hauteur
 
 
         //Définition du rectangle 2 a dessiner
         SDL_Rect rectangle2;
-        rectangle2.x=SCREEN_WIDTH-20;//debut x
-        rectangle2.y=racket2->y;//debut y
-        rectangle2.w=20; //Largeur
-        rectangle2.h=100; //Hauteur
+        rectangle2.x=myGame->racket2.x;//debut x
+        rectangle2.y=myGame->racket2.y;//debut y
+        rectangle2.w=myGame->racket2.w; //Largeur
+        rectangle2.h=myGame->racket2.h; //Hauteur
 
         //Draw in texture
-        SDL_SetRenderDrawColor(myGame->g_pRenderer,255,0,0,255); // set the color used for drawing operations
+        SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,255,0,0,255); // set the color used for drawing operations
 
 
-        SDL_RenderFillRect(myGame->g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
-        SDL_RenderFillRect(myGame->g_pRenderer, &rectangle2);
+        SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
+        SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle2);
 
-        SDL_RenderPresent(myGame->g_pRenderer); // update the screen with any rendering performed since the previous cal
+        SDL_RenderPresent(myGame->displayGame.g_pRenderer); // update the screen with any rendering performed since the previous cal
 
-        SDL_SetRenderDrawColor(myGame->g_pRenderer,0,0,0,255); // black background
-        SDL_RenderClear(myGame->g_pRenderer);
+        SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,0,0,0,255); // black background
+        SDL_RenderClear(myGame->displayGame.g_pRenderer);
 
 }
 
-void RenderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB){
+void renderLineSquares(DisplayPongGame *displayGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB){
 
         int y;
-        SDL_SetRenderDrawColor(myGame->g_pRenderer,colorR,colorG,colorB,255);
+        SDL_SetRenderDrawColor(displayGame->g_pRenderer,colorR,colorG,colorB,255);
 
         for (y=20; y<SCREEN_HEIGHT-20; y=y+30){
 
@@ -80,18 +101,15 @@ void RenderLineSquares(DisplayPongGame *myGame, int width, int height, int posit
         Rectangle.w=width;
         Rectangle.h=height;
 
-        SDL_RenderFillRect(myGame->g_pRenderer, &Rectangle);
+        SDL_RenderFillRect(displayGame->g_pRenderer, &Rectangle);
         }
 
 }
 
-
-
-void RenderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B){
-    SDL_SetRenderDrawColor(myGame->g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
+void renderCircle(DisplayPongGame *displayGame, PongBall ball, int R, int G, int B){
+    SDL_SetRenderDrawColor(displayGame->g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
     int radiusMin;
 
-    ball.radius = 12;
     int x, y = 0;
     int* xptr = &x;
     int* yptr = &y;
@@ -100,31 +118,37 @@ void RenderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B){
         for (float angle = 0.0; angle<360; angle++){
             *xptr = ball.px-radiusMin * cos(angle);
             *yptr = ball.py-radiusMin * sin(angle);
-            SDL_RenderDrawPoint(myGame->g_pRenderer, x, y);
+            SDL_RenderDrawPoint(displayGame->g_pRenderer, x, y);
             }
     free (yptr);
     free (xptr);
     }
 }
 
-void destroy(DisplayPongGame *myGame){
-
-      //Destroy render
-     if(myGame->g_pRenderer!=NULL)
-        SDL_DestroyRenderer(myGame->g_pRenderer);
-
-    //Destroy surface
-     if(myGame->g_psurface!=NULL)
-         SDL_FreeSurface(myGame->g_psurface);
-
-    //Destroy window
-    if(myGame->g_pWindow!=NULL)
-        SDL_DestroyWindow(myGame->g_pWindow);
+void renderPongGame (PongGame myGame){
+    renderRackets(&myGame);
+    renderLineSquares (&myGame.displayGame, 5, 20, 300, 300, 255, 255, 255);
+    renderCircle (&myGame.displayGame,myGame.ball,255,255,255);
 
 }
 
+void destroy(DisplayPongGame *displayGame){
 
-void handleEvents(int *isRunning, Racket *racket1, Racket *racket2){
+      //Destroy render
+     if(displayGame->g_pRenderer!=NULL)
+        SDL_DestroyRenderer(displayGame->g_pRenderer);
+
+    //Destroy surface
+     if(displayGame->g_psurface!=NULL)
+         SDL_FreeSurface(displayGame->g_psurface);
+
+    //Destroy window
+    if(displayGame->g_pWindow!=NULL)
+        SDL_DestroyWindow(displayGame->g_pWindow);
+
+}
+
+void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2){
 
 
     SDL_Event event;
@@ -174,7 +198,6 @@ void MoveBall(PongBall Ball){
 
 
 }
-
 
 //  Check if the ball hits a wall
 enum BOOL CheckCollisionWalls (){

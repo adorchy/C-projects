@@ -10,7 +10,7 @@
 #include <math.h>
 
 // Constant Mathematics
-#define M_PI 3.14159265358979323846
+#define PI 3.14159265358979323846
 
 // Screen size
 #define SCREEN_WIDTH 1024
