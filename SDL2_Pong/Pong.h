@@ -6,11 +6,7 @@
 #endif // PONG_H_INCLUDED
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
-#include <time.h>
-#include <math.h>
+
 #include "Define.h"
 
 
@@ -48,6 +44,10 @@ typedef struct PongBall{
 
 }PongBall;
 
+enum BOOL{
+    True,False
+};
+
 
 //prototypes
 int init(char *title, int xpos,int ypos,int width, int height,int flags,VideoGame *myGame, PongBall *ball);
@@ -55,12 +55,16 @@ void destroy(VideoGame *myGame);
 void handleEvents(gameState *state,Racket *dep,Racket *dep2);
 void delay(unsigned int frameLimit);
 
-void render(VideoGame *myGame);
-void drawInRenderer(VideoGame *myGame);
-void drawInSurface(VideoGame *myGame);
 void renderRackets(VideoGame *myGame,Racket *dep,Racket *dep2 );
 void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
 void RenderCircle(VideoGame *myGame, PongBall ball, int R, int G, int B);
+void MoveBall();
+void HandleAI ();
+void HandlePlayeScore ();
+void HandleAIScore ();
+
+enum BOOL CheckCollisionWalls ();
+enum BOOL CheckCollisionRackets ();
 
 
 

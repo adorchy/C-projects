@@ -72,7 +72,7 @@ void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, 
         int y;
         SDL_SetRenderDrawColor(myGame->g_pRenderer,colorR,colorG,colorB,255);
 
-        for (y=10; y<SCREEN_HEIGHT; y=y+30){
+        for (y=20; y<SCREEN_HEIGHT-20; y=y+30){
 
         SDL_Rect Rectangle;
         Rectangle.x=SCREEN_WIDTH/2-width/2;
@@ -156,8 +156,8 @@ void handleEvents(gameState *state,Racket *racket1,Racket *racket2){
         case SDL_KEYDOWN:
                         switch (event.key.keysym.sym)
                             {
-                                case SDLK_UP: if (racket1->y>0){racket1->y-=15;racket2->y-=15;} break;
-                                case SDLK_DOWN:  if (racket1->y<SCREEN_HEIGHT-100) {racket1->y+=15;racket2->y+=15;} break;
+                                case SDLK_UP: if (racket1->y>0){racket1->y-=30;racket2->y-=30;} break;
+                                case SDLK_DOWN:  if (racket1->y<SCREEN_HEIGHT-100) {racket1->y+=30;racket2->y+=30;} break;
                             }
                             break;
 
@@ -192,6 +192,15 @@ void delay(unsigned int frameLimit)
     }
 }
 
+//  Check if the ball hits a wall
+enum BOOL CheckCollisionWalls (){
+    return False;
+};
+
+//  Check if the ball hits a racket
+enum BOOL CheckCollisionRackets (){
+    return False;
+};
 
 
 
