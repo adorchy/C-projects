@@ -1,7 +1,7 @@
 #include "Pong.h"
 
 
-int init(char *title, int xpos,int ypos,int width, int height,int flags,VideoGame *myGame, PongBall *ball){
+int init(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myGame, PongBall *ball){
 
 
     myGame->g_pWindow=NULL;
@@ -35,7 +35,8 @@ int init(char *title, int xpos,int ypos,int width, int height,int flags,VideoGam
 
 
 
-void renderRackets(VideoGame *myGame,Racket *racket1,Racket *racket2 ) {
+void renderRackets(DisplayPongGame *myGame,Racket *racket1,Racket *racket2 ) {
+
 
        //Définition du rectangle 1 a dessiner
         SDL_Rect rectangle;
@@ -66,7 +67,7 @@ void renderRackets(VideoGame *myGame,Racket *racket1,Racket *racket2 ) {
 
 }
 
-void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB){
+void RenderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB){
 
         int y;
         SDL_SetRenderDrawColor(myGame->g_pRenderer,colorR,colorG,colorB,255);
@@ -86,7 +87,7 @@ void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, 
 
 
 
-void RenderCircle(VideoGame *myGame, PongBall ball, int R, int G, int B){
+void RenderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B){
     SDL_SetRenderDrawColor(myGame->g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
     int radiusMin;
 
@@ -106,7 +107,7 @@ void RenderCircle(VideoGame *myGame, PongBall ball, int R, int G, int B){
     }
 }
 
-void destroy(VideoGame *myGame){
+void destroy(DisplayPongGame *myGame){
 
       //Destroy render
      if(myGame->g_pRenderer!=NULL)
@@ -123,7 +124,7 @@ void destroy(VideoGame *myGame){
 }
 
 
-void handleEvents(gameState *state, Racket *racket1, Racket *racket2){
+void handleEvents(int *isRunning, Racket *racket1, Racket *racket2){
 
 
     SDL_Event event;
@@ -131,7 +132,7 @@ void handleEvents(gameState *state, Racket *racket1, Racket *racket2){
     if(SDL_PollEvent(&event)){
         switch(event.type){
         case SDL_QUIT:
-              state->isRunning=0; break;
+              *isRunning=0; break;
         case SDL_KEYDOWN:
                         switch (event.key.keysym.sym)
                             {
