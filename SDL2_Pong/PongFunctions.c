@@ -7,9 +7,8 @@ int init(char *title, int xpos,int ypos,int width, int height,int flags,VideoGam
     myGame->g_pWindow=NULL;
     myGame->g_pRenderer=NULL;
     myGame->g_psurface=NULL;
-    myGame->g_ptexture=NULL;
-    ball->x=SCREEN_WIDTH/4;
-    ball->y=SCREEN_HEIGHT/2;
+    ball->px=SCREEN_WIDTH/4;
+    ball->py=SCREEN_HEIGHT/2;
 
     //initialize SDL
 
@@ -55,7 +54,7 @@ void renderRackets(VideoGame *myGame,Racket *racket1,Racket *racket2 ) {
 
         //Draw in texture
         SDL_SetRenderDrawColor(myGame->g_pRenderer,255,0,0,255); // set the color used for drawing operations
-        //SDL_SetRenderTarget(myGame->g_pRenderer, myGame->g_ptexture); // set a texture as the current rendering target
+
 
         SDL_RenderFillRect(myGame->g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
         SDL_RenderFillRect(myGame->g_pRenderer, &rectangle2);
@@ -83,22 +82,6 @@ void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, 
         SDL_RenderFillRect(myGame->g_pRenderer, &Rectangle);
         }
 
-        /*
-        //Creating the surface.
-        myGame->g_psurface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0); // allocate a new RGB surface
-
-        //Fast fill of a rectangle with a specific color
-        SDL_FillRect(myGame->g_psurface, NULL, SDL_MapRGB(myGame->g_psurface->format, colorR, colorG, colorB));
-
-        SDL_Texture *texture_tampon = SDL_CreateTextureFromSurface(myGame->g_pRenderer,
-                                                                   myGame->g_psurface);
-        SDL_SetRenderTarget(myGame->g_pRenderer, texture_tampon);
-
-        SDL_QueryTexture(texture_tampon, NULL, NULL, &Rectangle.w, &Rectangle.h);
-
-        // copy a portion of the texture to the current rendering target.
-        SDL_RenderCopy(myGame->g_pRenderer,texture_tampon,NULL,&Rectangle);*/
-
 }
 
 
@@ -114,8 +97,8 @@ void RenderCircle(VideoGame *myGame, PongBall ball, int R, int G, int B){
 
     for (radiusMin = ball.radius ; radiusMin>=1; radiusMin--){
         for (float angle = 0.0; angle<360; angle++){
-            *xptr = ball.x-radiusMin * cos(angle);
-            *yptr = ball.y-radiusMin * sin(angle);
+            *xptr = ball.px-radiusMin * cos(angle);
+            *yptr = ball.py-radiusMin * sin(angle);
             SDL_RenderDrawPoint(myGame->g_pRenderer, x, y);
             }
     free (yptr);
@@ -129,10 +112,6 @@ void destroy(VideoGame *myGame){
      if(myGame->g_pRenderer!=NULL)
         SDL_DestroyRenderer(myGame->g_pRenderer);
 
-      //Destroy texture
-     if(myGame->g_ptexture!=NULL)
-        SDL_DestroyTexture(myGame->g_ptexture);
-
     //Destroy surface
      if(myGame->g_psurface!=NULL)
          SDL_FreeSurface(myGame->g_psurface);
@@ -144,7 +123,7 @@ void destroy(VideoGame *myGame){
 }
 
 
-void handleEvents(gameState *state,Racket *racket1,Racket *racket2){
+void handleEvents(gameState *state, Racket *racket1, Racket *racket2){
 
 
     SDL_Event event;
@@ -152,7 +131,7 @@ void handleEvents(gameState *state,Racket *racket1,Racket *racket2){
     if(SDL_PollEvent(&event)){
         switch(event.type){
         case SDL_QUIT:
-              state->g_bRunning=0;break;
+              state->isRunning=0; break;
         case SDL_KEYDOWN:
                         switch (event.key.keysym.sym)
                             {
@@ -184,13 +163,17 @@ void delay(unsigned int frameLimit)
     if (frameLimit > ticks + 16)
     {
         SDL_Delay(16);
-    }
 
-    else
-    {
+    } else {
         SDL_Delay(frameLimit - ticks);
     }
 }
+
+void MoveBall(PongBall Ball){
+
+
+}
+
 
 //  Check if the ball hits a wall
 enum BOOL CheckCollisionWalls (){

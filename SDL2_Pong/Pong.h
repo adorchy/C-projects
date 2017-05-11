@@ -14,33 +14,30 @@ typedef struct VideoGame{
 
      SDL_Window *g_pWindow;
      SDL_Renderer *g_pRenderer;
-     SDL_Texture *g_ptexture;
      SDL_Surface *g_psurface;
 
 }VideoGame;
 
 typedef struct gameState{
 
-    int g_bRunning;
+    int isRunning;
 
 
 }gameState;
 
 typedef struct Racket{
-
     double x;
     double y;
 
 }Racket;
 
-typedef struct score{
+typedef struct Score{
     int player, enemy;
 
 }score;
 
 typedef struct PongBall{
-    int x,y,radius;
-
+    int px,py,sx,sy,radius;
 
 }PongBall;
 
@@ -52,15 +49,15 @@ enum BOOL{
 //prototypes
 int init(char *title, int xpos,int ypos,int width, int height,int flags,VideoGame *myGame, PongBall *ball);
 void destroy(VideoGame *myGame);
-void handleEvents(gameState *state,Racket *dep,Racket *dep2);
+void handleEvents(gameState *state, Racket *racket1, Racket *racket2);
 void delay(unsigned int frameLimit);
 
 void renderRackets(VideoGame *myGame,Racket *dep,Racket *dep2 );
 void RenderLineSquares(VideoGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
 void RenderCircle(VideoGame *myGame, PongBall ball, int R, int G, int B);
-void MoveBall();
+void MoveBall(PongBall Ball);
 void HandleAI ();
-void HandlePlayeScore ();
+void HandlePlayerScore ();
 void HandleAIScore ();
 
 enum BOOL CheckCollisionWalls ();
