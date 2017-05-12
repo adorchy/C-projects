@@ -225,10 +225,13 @@ void BallMovement(PongGame *myGame){
         CheckCollisionBallWalls (*myGame)== Bottom
         ){
 
-        float angle = 30.0;
-    /*
+        float angle = 45.0;
+
+        fprintf(stdout,"sy(%s):%f\n",SDL_GetError(),myGame->ball.sy);
+        myGame->ball.sy=-myGame->ball.sy;
+        myGame->ball.sx*=cos (angle);
         myGame->ball.px+=myGame->ball.sx;
-        myGame->ball.py+=myGame->ball.sy; */
+        myGame->ball.py+=myGame->ball.sy;
 
     }
     // if ball hit a racket
