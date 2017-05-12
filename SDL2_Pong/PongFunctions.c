@@ -4,7 +4,7 @@ void initPongGame (PongGame *myGame){
 
  myGame->ball.px=SCREEN_WIDTH/3;
  myGame->ball.py=SCREEN_HEIGHT/2;
- myGame->ball.sx=1.0;
+ myGame->ball.sx=2.0;
  myGame->ball.sy=0.25;
  myGame->ball.radius=12;
 
@@ -53,6 +53,33 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
     }
 
     return 1;
+
+}
+
+void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2){
+
+
+    SDL_Event event;
+
+    if(SDL_PollEvent(&event)){
+        switch(event.type){
+        case SDL_QUIT:
+              *isRunning=0; break;
+        case SDL_KEYDOWN:
+                        switch (event.key.keysym.sym)
+                            {
+                                case SDLK_UP: if (racket1->y>0){racket1->y-=30;racket2->y-=30;} break;
+                                case SDLK_DOWN:  if (racket1->y<SCREEN_HEIGHT-100) {racket1->y+=30;racket2->y+=30;} break;
+                            }
+                            break;
+
+        case SDL_KEYUP:;break;
+
+        default:break;
+
+        }
+    }
+
 
 }
 
@@ -148,32 +175,7 @@ void destroy(DisplayPongGame *displayGame){
 
 }
 
-void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2){
 
-
-    SDL_Event event;
-
-    if(SDL_PollEvent(&event)){
-        switch(event.type){
-        case SDL_QUIT:
-              *isRunning=0; break;
-        case SDL_KEYDOWN:
-                        switch (event.key.keysym.sym)
-                            {
-                                case SDLK_UP: if (racket1->y>0){racket1->y-=30;racket2->y-=30;} break;
-                                case SDLK_DOWN:  if (racket1->y<SCREEN_HEIGHT-100) {racket1->y+=30;racket2->y+=30;} break;
-                            }
-                            break;
-
-        case SDL_KEYUP:;break;
-
-        default:break;
-
-        }
-    }
-
-
-}
 
 void delay(unsigned int frameLimit)
 {
@@ -194,8 +196,9 @@ void delay(unsigned int frameLimit)
     }
 }
 
-void MoveBall(PongBall Ball){
-
+void MoveBall(PongBall *ball){
+    ball->px+=ball->sx;
+    ball->py+=ball->sy;
 
 }
 

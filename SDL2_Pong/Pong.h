@@ -60,7 +60,7 @@ void renderRackets(PongGame *myGame);
 void renderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
 void renderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B);
 void renderPongGame (PongGame myGame);
-void MoveBall(PongBall Ball);
+void MoveBall(PongBall *ball);
 void HandleAI ();
 void HandleScore ();
 
