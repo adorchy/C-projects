@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     //Init SDL
     if(initSDL("Pong",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN,&myGame.displayGame)){
             isRunning=1;
+            srand (time(NULL)); // initialize random seed
     }else{
             fprintf(stdout,"Unable to initialize SDL (%s)\n",SDL_GetError());
             return EXIT_FAILURE;
@@ -28,9 +29,11 @@ int main(int argc, char *argv[])
     while(isRunning){
 
             //Pour intercepter événements click
-            handleEvents(&isRunning,&myGame.racket1,&myGame.racket2);
+            handleEvents(&isRunning,&myGame);
             renderPongGame (myGame);
-            MoveBall(&myGame.ball);
+            BallMovement(&myGame);
+
+
 
 
            // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)

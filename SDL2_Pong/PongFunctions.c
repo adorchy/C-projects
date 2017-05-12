@@ -4,9 +4,9 @@ void initPongGame (PongGame *myGame){
 
  myGame->ball.px=SCREEN_WIDTH/3;
  myGame->ball.py=SCREEN_HEIGHT/2;
- myGame->ball.sx=2.0;
- myGame->ball.sy=0.25;
- myGame->ball.radius=12;
+ myGame->ball.sx=3.0;
+ myGame->ball.sy=4.0;
+ myGame->ball.radius=BALL_RADIUS;
 
  //racket 1
  myGame->racket1.x=0;
@@ -23,6 +23,7 @@ void initPongGame (PongGame *myGame){
  //score
  myGame->score.AI=0;
  myGame->score.player=0;
+
 
 }
 
@@ -56,7 +57,7 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
 
 }
 
-void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2){
+void handleEvents(int *isRunning, PongGame *myGame){
 
 
     SDL_Event event;
@@ -68,8 +69,8 @@ void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2){
         case SDL_KEYDOWN:
                         switch (event.key.keysym.sym)
                             {
-                                case SDLK_UP: if (racket1->y>0){racket1->y-=30;racket2->y-=30;} break;
-                                case SDLK_DOWN:  if (racket1->y<SCREEN_HEIGHT-100) {racket1->y+=30;racket2->y+=30;} break;
+                                case SDLK_UP: if (myGame->racket1.y>0){myGame->racket1.y-=10;myGame->racket2.y-=10;} break;
+                                case SDLK_DOWN:  if (myGame->racket1.y<SCREEN_HEIGHT-100) {myGame->racket1.y+=10;myGame->racket2.y+=10;} break;
                             }
                             break;
 
@@ -108,17 +109,19 @@ void renderRackets(PongGame *myGame) {
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle2);
 
-        SDL_RenderPresent(myGame->displayGame.g_pRenderer); // update the screen with any rendering performed since the previous cal
-
-        SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,0,0,0,255); // black background
-        SDL_RenderClear(myGame->displayGame.g_pRenderer);
-
 }
 
-void renderLineSquares(DisplayPongGame *displayGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB){
+void renderLineSquares(PongGame *myGame,
+                                        int width,
+                                        int height,
+                                        int positionX,
+                                        int positionY,
+                                        int colorR,
+                                        int colorG,
+                                        int colorB){
 
         int y;
-        SDL_SetRenderDrawColor(displayGame->g_pRenderer,colorR,colorG,colorB,255);
+        SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,colorR,colorG,colorB,255);
 
         for (y=20; y<SCREEN_HEIGHT-20; y=y+30){
 
@@ -128,54 +131,117 @@ void renderLineSquares(DisplayPongGame *displayGame, int width, int height, int 
         Rectangle.w=width;
         Rectangle.h=height;
 
-        SDL_RenderFillRect(displayGame->g_pRenderer, &Rectangle);
+        SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &Rectangle);
         }
 
 }
 
-void renderCircle(DisplayPongGame *displayGame, PongBall ball, int R, int G, int B){
-    SDL_SetRenderDrawColor(displayGame->g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
+void renderCircle(PongGame *myGame, int R, int G, int B){
+    SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
     int radiusMin;
 
     int x, y = 0;
-    int* xptr = &x;
-    int* yptr = &y;
 
-    for (radiusMin = ball.radius ; radiusMin>=1; radiusMin--){
+    for (radiusMin = myGame->ball.radius ; radiusMin>=1; radiusMin--){
         for (float angle = 0.0; angle<360; angle++){
-            *xptr = ball.px-radiusMin * cos(angle);
-            *yptr = ball.py-radiusMin * sin(angle);
-            SDL_RenderDrawPoint(displayGame->g_pRenderer, x, y);
+            x = myGame->ball.px-radiusMin * cos(angle);
+            y = myGame->ball.py-radiusMin * sin(angle);
+            SDL_RenderDrawPoint(myGame->displayGame.g_pRenderer, x, y);
             }
-    free (yptr);
-    free (xptr);
     }
 }
 
 void renderPongGame (PongGame myGame){
     renderRackets(&myGame);
-    renderLineSquares (&myGame.displayGame, 5, 20, 300, 300, 255, 255, 255);
-    renderCircle (&myGame.displayGame,myGame.ball,255,255,255);
+    renderLineSquares (&myGame, 5, 20, 300, 300, 255, 255, 255);
+    renderCircle (&myGame,255,255,255);
+    SDL_RenderPresent(myGame.displayGame.g_pRenderer); // update the screen with any rendering performed since the previous cal
+
+    SDL_SetRenderDrawColor(myGame.displayGame.g_pRenderer,0,0,0,255); // black background
+    SDL_RenderClear(myGame.displayGame.g_pRenderer);
 
 }
 
-void destroy(DisplayPongGame *displayGame){
+//  Check if the ball hits a wall
+enum Collision CheckCollisionBallWalls (PongGame myGame){
+    //check if ball hit right side
+    if (myGame.ball.px >=SCREEN_WIDTH-BALL_RADIUS){
+        fprintf(stdout,"score right side (%s)\n",SDL_GetError());
+        fprintf(stdout,"ball position x(%s):%f\n",SDL_GetError(),myGame.ball.px);
+        return Right;
+    }
+    //check if ball hit left side
+    if (myGame.ball.px <=BALL_RADIUS){
+        fprintf(stdout,"score left side (%s)\n",SDL_GetError());
+        return Left;
+    }
+    //check if ball hit top
+    if (myGame.ball.py <= BALL_RADIUS){
+        fprintf(stdout,"collision on top (%s)\n",SDL_GetError());
+        return Top;
+    }
+    //check if ball hit bottom
+    if (myGame.ball.py >= SCREEN_HEIGHT-BALL_RADIUS){
+        fprintf(stdout,"collision on bottom (%s)\n",SDL_GetError());
+        return Bottom;
+    }
 
-      //Destroy render
-     if(displayGame->g_pRenderer!=NULL)
-        SDL_DestroyRenderer(displayGame->g_pRenderer);
+    // if no collision
+    return None;
+};
 
-    //Destroy surface
-     if(displayGame->g_psurface!=NULL)
-         SDL_FreeSurface(displayGame->g_psurface);
+void ResetBall (PongGame *myGame){
+    myGame->ball.px= rand() % SCREEN_WIDTH/2 + SCREEN_WIDTH/3;     // in the range SCREEN_WIDTH/2 to SCREEN_WIDTH/3
+    myGame->ball.py= rand() % SCREEN_HEIGHT/2 + SCREEN_HEIGHT/3;
+    myGame->ball.sx= (rand () % 2 + 4) + cos (rand () % 90);
+    myGame->ball.sy= (rand () % 2) + cos (rand () % 90);
 
-    //Destroy window
-    if(displayGame->g_pWindow!=NULL)
-        SDL_DestroyWindow(displayGame->g_pWindow);
+    if ((rand () % 2)==1) {
+        myGame->ball.sx*=-1;
+    }
+
+
+    if ((rand () % 2)==1) {
+        myGame->ball.sy*=-1;
+    }
+
 
 }
 
 
+//  Check if the ball hits a racket
+enum BOOL CheckCollisionBallRackets (PongGame myGame){
+    return False;
+};
+
+void BallMovement(PongGame *myGame){
+    if (CheckCollisionBallWalls (*myGame)== Right ||
+    CheckCollisionBallWalls (*myGame)== Left
+    ){
+    ResetBall (myGame);
+    }
+    // if ball hit Top or Bottom
+    else if (CheckCollisionBallWalls (*myGame)== Top ||
+        CheckCollisionBallWalls (*myGame)== Bottom
+        ){
+
+        float angle = 30.0;
+    /*
+        myGame->ball.px+=myGame->ball.sx;
+        myGame->ball.py+=myGame->ball.sy; */
+
+    }
+    // if ball hit a racket
+    else if (CheckCollisionBallRackets (*myGame)== True){
+
+    }
+    // else the ball keeps its trajectory
+    else {
+    myGame->ball.px+=myGame->ball.sx;
+    myGame->ball.py+=myGame->ball.sy;
+    }
+
+}
 
 void delay(unsigned int frameLimit)
 {
@@ -196,21 +262,18 @@ void delay(unsigned int frameLimit)
     }
 }
 
-void MoveBall(PongBall *ball){
-    ball->px+=ball->sx;
-    ball->py+=ball->sy;
+void destroy(DisplayPongGame *displayGame){
+
+      //Destroy render
+     if(displayGame->g_pRenderer!=NULL)
+        SDL_DestroyRenderer(displayGame->g_pRenderer);
+
+    //Destroy surface
+     if(displayGame->g_psurface!=NULL)
+         SDL_FreeSurface(displayGame->g_psurface);
+
+    //Destroy window
+    if(displayGame->g_pWindow!=NULL)
+        SDL_DestroyWindow(displayGame->g_pWindow);
 
 }
-
-//  Check if the ball hits a wall
-enum BOOL CheckCollisionWalls (){
-    return False;
-};
-
-//  Check if the ball hits a racket
-enum BOOL CheckCollisionRackets (){
-    return False;
-};
-
-
-

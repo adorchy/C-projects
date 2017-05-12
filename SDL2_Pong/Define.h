@@ -16,6 +16,9 @@
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 780
 
+// Ball
+#define BALL_RADIUS 12
+
 // Location of output text
 #define COMPUTER_SCORE_X 10
 #define COMPUTER_SCORE_Y 10

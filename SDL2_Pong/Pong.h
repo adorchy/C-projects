@@ -10,7 +10,7 @@
 #include "Define.h"
 
 typedef struct PongRacket{
-    double x,y;
+    float x,y;
     int w,h;
 
 }PongRacket;
@@ -43,6 +43,9 @@ typedef struct PongGame{
 
 }PongGame;
 
+enum Collision {
+    Top, Bottom, Right, Left, None
+};
 
 enum BOOL{
     True,False
@@ -53,18 +56,18 @@ enum BOOL{
 void initPongGame (PongGame *myGame);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
-void handleEvents(int *isRunning, PongRacket *racket1, PongRacket *racket2);
-void delay(unsigned int frameLimit);
+void handleEvents(int *isRunning, PongGame *myGame);
+void HandleAI ();
 
 void renderRackets(PongGame *myGame);
-void renderLineSquares(DisplayPongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
-void renderCircle(DisplayPongGame *myGame, PongBall ball, int R, int G, int B);
+void renderLineSquares(PongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
+void renderCircle(PongGame *myGame, int R, int G, int B);
 void renderPongGame (PongGame myGame);
-void MoveBall(PongBall *ball);
-void HandleAI ();
+
+enum Collision CheckCollisionBallWalls (PongGame myGame);
 void HandleScore ();
-
-enum BOOL CheckCollisionWalls ();
-enum BOOL CheckCollisionRackets ();
-
+void ResetBall (PongGame *myGame);
+enum BOOL CheckCollisionBallRackets (PongGame myGame);
+void BallMovement(PongGame *myGame);
+void delay(unsigned int frameLimit);
 void destroy(DisplayPongGame *myGame);
