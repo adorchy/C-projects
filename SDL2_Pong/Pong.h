@@ -9,11 +9,11 @@
 
 #include "Define.h"
 
-typedef struct PongRacket{
+typedef struct PongPaddle{
     float x,y;
     int w,h;
 
-}PongRacket;
+}PongPaddle;
 
 typedef struct PongScore{
     int player, AI;
@@ -37,8 +37,8 @@ typedef struct DisplayPongGame{
 typedef struct PongGame{
     DisplayPongGame displayGame;
     PongBall ball;
-    PongRacket racket1;
-    PongRacket racket2;
+    PongPaddle paddle1;
+    PongPaddle paddle2;
     PongScore score;
 
 }PongGame;
@@ -59,7 +59,7 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
 void handleEvents(int *isRunning, PongGame *myGame);
 void HandleAI ();
 
-void renderRackets(PongGame *myGame);
+void renderPaddles(PongGame *myGame);
 void renderLineSquares(PongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
 void renderCircle(PongGame *myGame, int R, int G, int B);
 void renderPongGame (PongGame myGame);
@@ -67,7 +67,7 @@ void renderPongGame (PongGame myGame);
 enum Collision CheckCollisionBallWalls (PongGame myGame);
 void HandleScore ();
 void ResetBall (PongGame *myGame);
-enum BOOL CheckCollisionBallRackets (PongGame myGame);
+enum BOOL CheckCollisionBallPaddles (PongGame myGame);
 void BallMovement(PongGame *myGame);
 void delay(unsigned int frameLimit);
 void destroy(DisplayPongGame *myGame);

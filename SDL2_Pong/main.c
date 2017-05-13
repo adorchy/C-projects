@@ -33,9 +33,6 @@ int main(int argc, char *argv[])
             renderPongGame (myGame);
             BallMovement(&myGame);
 
-
-
-
            // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)
             delay(frameLimit);
 

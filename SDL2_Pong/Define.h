@@ -18,6 +18,9 @@
 
 // Ball
 #define BALL_RADIUS 12
+#define BOUNCE_WALL_ANGLE 45
+#define BOUNCE_RACKET_ANGLE 45
+#define BOUNCE_SPEED 1.2
 
 // Location of output text
 #define COMPUTER_SCORE_X 10
