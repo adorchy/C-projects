@@ -12,10 +12,12 @@ void initPongGame (PongGame *myGame){
  //padle 1
  myGame->paddle1.x=0;
  myGame->paddle1.y=0;
+ myGame->paddle1.dy=0;
 
  //padle 2
  myGame->paddle2.x=SCREEN_WIDTH-PADDLE_WIDTH;
  myGame->paddle2.y=0;
+ myGame->paddle2.dy=0;
 
  //score
  myGame->score.AI=0;
@@ -64,20 +66,50 @@ void handleEvents(int *isRunning, PongGame *myGame){
 
     if(SDL_PollEvent(&event)){
         switch(event.type){
-        case SDL_QUIT:
-              *isRunning=0; break;
-        case SDL_KEYDOWN:
-                        switch (event.key.keysym.sym)
-                            {
-                                case SDLK_UP: if (myGame->paddle1.y>0){myGame->paddle1.y-=PADDLE_SPEED;myGame->paddle2.y-=PADDLE_SPEED;} break;
-                                case SDLK_DOWN:  if (myGame->paddle1.y<SCREEN_HEIGHT-100) {myGame->paddle1.y+=PADDLE_SPEED;myGame->paddle2.y+=PADDLE_SPEED;} break;
-                            }
-                            break;
+            case SDL_QUIT:
+                  *isRunning=0; break;
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym)
+                {
+                    case SDLK_UP: myGame->paddle1.dy-=PADDLE_SPEED; fprintf(stdout,"dy:%f\n", myGame->paddle1.dy);break;
+                    case SDLK_DOWN: myGame->paddle1.dy+=PADDLE_SPEED; fprintf(stdout,"dy:%f\n", myGame->paddle1.dy);break;
+                    default:break;
+                }
+                break;
 
-        case SDL_KEYUP:;break;
+            case SDL_KEYUP:
+                switch (event.key.keysym.sym)
+                {
+                   case SDLK_UP: myGame->paddle1.dy=myGame->paddle1.y; fprintf(stdout,"y:%f\n", myGame->paddle1.y);break;
+                   case SDLK_DOWN: myGame->paddle1.dy=myGame->paddle1.y; fprintf(stdout,"y:%f\n", myGame->paddle1.y);break;
+                   default:break;
+                }
 
-        default:break;
+                break;
+
+            default:break;
         }
+    }
+
+}
+
+void handleAI(PongGame *myGame){
+    //myGame->paddle2.y-=PADDLE_SPEED;
+    //myGame->paddle2.y+=PADDLE_SPEED;
+
+}
+
+void paddlesMove (PongGame *myGame){
+    if (myGame->paddle1.y>myGame->paddle1.dy){
+        if (myGame->paddle1.y>0){
+                myGame->paddle1.y-=4;
+                }
+    }
+
+    if (myGame->paddle1.y<myGame->paddle1.dy){
+        if (myGame->paddle1.y<SCREEN_HEIGHT-100){
+            myGame->paddle1.y+=4;
+            }
     }
 
 }
@@ -141,7 +173,7 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
 void renderAIScore (PongGame *myGame, font myFont){
         char AIScoreArr [1];
         sprintf (AIScoreArr, "%i", myGame->score.AI);
-        fprintf(stdout,"score AI:%c%c\n", AIScoreArr[0],AIScoreArr[1]);
+        //fprintf(stdout,"score AI:%c%c\n", AIScoreArr[0],AIScoreArr[1]);
         SDL_Color fontColor={255,255,255};
         myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, AIScoreArr, fontColor);//Charge la police
 
@@ -180,7 +212,7 @@ void renderPlayerScore (PongGame *myGame, font myFont){
 
         char playerScoreArr [1];
         sprintf (playerScoreArr, "%i", myGame->score.player);
-        fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
+        //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
         SDL_Color fontColor={255,255,255};
         myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);//Charge la police
 
@@ -233,22 +265,22 @@ void renderPongGame (PongGame myGame, font myFont){
 enum Collision CheckCollisionBallWalls (PongGame myGame){
     //check if ball hit right side
     if (myGame.ball.px >=SCREEN_WIDTH-BALL_RADIUS){
-        fprintf(stdout,"score right side\n");
+        //fprintf(stdout,"score right side\n");
         return Right;
     }
     //check if ball hit left side
     if (myGame.ball.px <=BALL_RADIUS){
-        fprintf(stdout,"score left side\n");
+        //fprintf(stdout,"score left side\n");
         return Left;
     }
     //check if ball hit top
     if (myGame.ball.py <= BALL_RADIUS){
-        fprintf(stdout,"collision on top\n");
+        //fprintf(stdout,"collision on top\n");
         return Top;
     }
     //check if ball hit bottom
     if (myGame.ball.py >= SCREEN_HEIGHT-BALL_RADIUS){
-        fprintf(stdout,"collision on bottom\n");
+        //fprintf(stdout,"collision on bottom\n");
         return Bottom;
     }
 
@@ -256,25 +288,12 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
     return None;
 };
 
-void HandleScore (PongGame *myGame){
-    if (CheckCollisionBallWalls (*myGame)== Right){
-            myGame->score.player+=1;
-       //     fprintf(stdout,"score Player:%i\n",myGame->score.player);
-    }
-
-    if (CheckCollisionBallWalls (*myGame)== Left){
-            myGame->score.AI+=1;
-       //     fprintf(stdout,"score AI:%i\n",myGame->score.AI);
-            }
-
-}
-
 void checkVictoryConditions (int *isRunning, PongGame *myGame){
-    if (myGame->score.AI >=4){
+    if (myGame->score.AI >=SCORE_TO_WIN){
         *isRunning=0;
     }
 
-    if (myGame->score.player >=4){
+    if (myGame->score.player >=SCORE_TO_WIN){
         *isRunning=0;
     }
 
@@ -319,12 +338,19 @@ enum BOOL CheckCollisionBallPaddles (PongGame myGame){
     return False;
 };
 
-void ballMovement(PongGame *myGame){
-    if (CheckCollisionBallWalls (*myGame)== Right ||
-    CheckCollisionBallWalls (*myGame)== Left
-    ){
+void ballMovementAndScore(PongGame *myGame){
+    // if ball hit right wall
+    if (CheckCollisionBallWalls (*myGame)== Right){
+        myGame->score.player+=1;
         ResetBall (myGame);
     }
+
+    // if ball hit left wall
+    if (CheckCollisionBallWalls (*myGame)== Left){
+        myGame->score.AI+=1;
+        ResetBall (myGame);
+    }
+
     // if ball hit Top or Bottom
     if (CheckCollisionBallWalls (*myGame)== Top ||
         CheckCollisionBallWalls (*myGame)== Bottom
@@ -361,8 +387,7 @@ void ballMovement(PongGame *myGame){
 
 }
 
-void delay(unsigned int frameLimit)
-{
+void delay(unsigned int frameLimit){
     // Gestion des 60 fps (images/seconde) soit environ 1 frame toutes les 16 ms
     unsigned int ticks = SDL_GetTicks();
 

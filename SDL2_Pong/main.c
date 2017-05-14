@@ -27,9 +27,10 @@ int main(int argc, char *argv[])
             //Pour intercepter événements click
             handleEvents(&isRunning,&myGame);
             renderPongGame (myGame, mFont);
-            HandleScore (&myGame);
             checkVictoryConditions (&isRunning, &myGame);
-            ballMovement(&myGame);
+            ballMovementAndScore(&myGame);
+
+            paddlesMove (&myGame);
 
            // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)
             delay(frameLimit);

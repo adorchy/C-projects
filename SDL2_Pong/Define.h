@@ -10,8 +10,9 @@
 #include <time.h>
 #include <math.h>
 
-// Constant Mathematics
+// Miscellaneous
 #define PI 3.14159265358979323846
+#define SCORE_TO_WIN 12
 
 // Screen size
 #define SCREEN_WIDTH 1024
@@ -28,13 +29,11 @@
 #define LINE_HEIGHT 10
 
 // Paddle
-#define PADDLE_SPEED 20.0
+#define PADDLE_SPEED SCREEN_HEIGHT/6
 #define PADDLE_WIDTH 13
 #define PADDLE_HEIGHT 100
 
 // Location of output text
-#define COMPUTER_SCORE_X 10
-#define PLAYER_SCORE_X   150
 #define SCORE_Y 50
 #define SCORE_W 60
 #define SCORE_H 60

@@ -8,7 +8,7 @@
 #include "Define.h"
 
 typedef struct PongPaddle{
-    float x,y;
+    float x,y,dy;
 
 }PongPaddle;
 
@@ -62,7 +62,8 @@ void initFont (font *myFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
 void handleEvents(int *isRunning, PongGame *myGame);
-void HandleAI ();
+void handleAI ();
+void paddlesMove (PongGame *myGame);
 
 void renderPaddles(PongGame *myGame);
 void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB);
@@ -72,10 +73,10 @@ void renderPlayerScore (PongGame *myGame, font myFont);
 void renderPongGame (PongGame myGame, font myFont);
 
 enum Collision CheckCollisionBallWalls (PongGame myGame);
-void HandleScore (PongGame *myGame);
+//void HandleScore (PongGame *myGame);
 void checkVictoryConditions (int *isRunning, PongGame *myGame);
 void ResetBall (PongGame *myGame);
 enum BOOL CheckCollisionBallPaddles (PongGame myGame);
-void ballMovement(PongGame *myGame);
+void ballMovementAndScore(PongGame *myGame);
 void delay(unsigned int frameLimit);
 void destroy(DisplayPongGame *myGame);
