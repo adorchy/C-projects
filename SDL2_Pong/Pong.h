@@ -11,7 +11,6 @@
 
 typedef struct PongPaddle{
     float x,y;
-    int w,h;
 
 }PongPaddle;
 
@@ -68,10 +67,11 @@ void handleEvents(int *isRunning, PongGame *myGame);
 void HandleAI ();
 
 void renderPaddles(PongGame *myGame);
-void renderLineSquares(PongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
+void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB);
 void renderCircle(PongGame *myGame, int R, int G, int B);
-void renderScore (PongGame *myGame, font mFont);
-void renderPongGame (PongGame myGame);
+void renderAIScore (PongGame *myGame, font mFont);
+void renderPlayerScore (PongGame *myGame, font mFont);
+void renderPongGame (PongGame myGame, font mFont);
 
 enum Collision CheckCollisionBallWalls (PongGame myGame);
 void HandleScore (PongGame *myGame);

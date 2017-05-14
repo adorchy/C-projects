@@ -23,15 +23,20 @@
 #define BOUNCE_RACKET_ANGLE 45.0
 #define BOUNCE_SPEED 1.2
 
+// Boundary line
+#define LINE_WIDTH 5
+#define LINE_HEIGHT 10
+
 // Paddle
 #define PADDLE_SPEED 20.0
 #define PADDLE_WIDTH 13
-#define PADDLE_HEIGH 100
+#define PADDLE_HEIGHT 100
 
 // Location of output text
 #define COMPUTER_SCORE_X 10
-#define COMPUTER_SCORE_Y 10
 #define PLAYER_SCORE_X   150
-#define PLAYER_SCORE_Y   10
+#define SCORE_Y 50
+#define SCORE_W 60
+#define SCORE_H 60
 
 #endif // DEFINE_H_INCLUDED

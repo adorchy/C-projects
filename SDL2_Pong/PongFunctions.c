@@ -10,22 +10,16 @@ void initPongGame (PongGame *myGame){
  myGame->ball.radius=BALL_RADIUS;
 
  //padle 1
- myGame->paddle1.h=PADDLE_HEIGH;
- myGame->paddle1.w=PADDLE_WIDTH;
  myGame->paddle1.x=0;
  myGame->paddle1.y=0;
 
  //padle 2
- myGame->paddle2.h=PADDLE_HEIGH;
- myGame->paddle2.w=PADDLE_WIDTH;
  myGame->paddle2.x=SCREEN_WIDTH-PADDLE_WIDTH;
  myGame->paddle2.y=0;
-
 
  //score
  myGame->score.AI=0;
  myGame->score.player=0;
-
 
 }
 
@@ -42,7 +36,6 @@ void initFont (font *mFont){
 
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *displayGame){
 
-
     displayGame->g_pWindow=NULL;
     displayGame->g_pRenderer=NULL;
     displayGame->g_pTexture=NULL;
@@ -57,22 +50,15 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
             //if succeeded create window, create our render
             if(displayGame->g_pWindow!=NULL){
                 displayGame->g_pRenderer=SDL_CreateRenderer(displayGame->g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
-
             }
-
-
     }else{
 
         return 0;
-
     }
-
     return 1;
-
 }
 
 void handleEvents(int *isRunning, PongGame *myGame){
-
 
     SDL_Event event;
 
@@ -91,63 +77,50 @@ void handleEvents(int *isRunning, PongGame *myGame){
         case SDL_KEYUP:;break;
 
         default:break;
-
         }
     }
-
 
 }
 
 void renderPaddles(PongGame *myGame) {
 
-
        //Définition du rectangle 1 a dessiner
         SDL_Rect rectangle;
         rectangle.x=myGame->paddle1.x;//debut x
         rectangle.y=myGame->paddle1.y;//debut y
-        rectangle.w=myGame->paddle1.w; //Largeur
-        rectangle.h=myGame->paddle1.h; //Hauteur
-
+        rectangle.w=PADDLE_WIDTH; //Largeur
+        rectangle.h=PADDLE_HEIGHT; //Hauteur
 
         //Définition du rectangle 2 a dessiner
         SDL_Rect rectangle2;
         rectangle2.x=myGame->paddle2.x;//debut x
         rectangle2.y=myGame->paddle2.y;//debut y
-        rectangle2.w=myGame->paddle2.w; //Largeur
-        rectangle2.h=myGame->paddle2.h; //Hauteur
+        rectangle2.w=PADDLE_WIDTH; //Largeur
+        rectangle2.h=PADDLE_HEIGHT; //Hauteur
 
         //Draw in texture
         SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,255,0,0,255); // set the color used for drawing operations
-
 
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle2);
 
 }
 
-void renderLineSquares(PongGame *myGame,
-                                        int width,
-                                        int height,
-                                        int positionX,
-                                        int positionY,
-                                        int colorR,
-                                        int colorG,
-                                        int colorB){
+void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB){
 
         int y;
         SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer,colorR,colorG,colorB,255);
 
-        for (y=10; y<SCREEN_HEIGHT-10; y=y+20){
+        for (y=10; y<SCREEN_HEIGHT-10; y=y+15){
 
         SDL_Rect Rectangle;
-        Rectangle.x=SCREEN_WIDTH/2-width/2;
+        Rectangle.x=SCREEN_WIDTH/2-LINE_WIDTH/2;
         Rectangle.y=y;
-        Rectangle.w=width;
-        Rectangle.h=height;
+        Rectangle.w=LINE_WIDTH;
+        Rectangle.h=LINE_HEIGHT;
 
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &Rectangle);
         }
-
 }
 
 void renderCircle(PongGame *myGame, int R, int G, int B){
@@ -156,7 +129,7 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
 
     int x, y = 0;
 
-    for (radiusMin = myGame->ball.radius ; radiusMin>=1; radiusMin--){
+    for (radiusMin = myGame->ball.radius ; radiusMin>=0; radiusMin--){
         for (float angle = 0.0; angle<360; angle++){
             x = myGame->ball.px-radiusMin * cos(angle);
             y = myGame->ball.py-radiusMin * sin(angle);
@@ -165,49 +138,90 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
     }
 }
 
-void renderScore (PongGame *myGame, font mFont){
-
-        char playerScore [1];
-        sprintf (playerScore, "%i", myGame->score.player);
+void renderAIScore (PongGame *myGame, font mFont){
+        char AIScoreArr [1];
+        sprintf (AIScoreArr, "%i", myGame->score.AI);
         //fprintf(stdout,"valeur buffer:%c%c\n", playerScore[0],playerScore[1]);
         SDL_Color fontColor={255,255,255};
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, playerScore, fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, AIScoreArr, fontColor);//Charge la police
 
 
         if(myGame->displayGame.g_pSurface){
 
 
                 //Définition du rectangle pour blitter la chaine
-                SDL_Rect rectangle;
-                rectangle.x=SCREEN_WIDTH/2-100;//debut x
-                rectangle.y=50;//debut y
-                rectangle.w=60; //Largeur
-                rectangle.h=60; //Hauteur
+                SDL_Rect playerScoreRect;
+                playerScoreRect.x=SCREEN_WIDTH/2-SCORE_W+100;//start point (x)
+                playerScoreRect.y=SCORE_Y;// start point (y)
+                playerScoreRect.w=SCORE_W; //Width
+                playerScoreRect.h=SCORE_H; //Height
 
 
-                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface); // Préparation de la texture pour la chaine
-                 SDL_FreeSurface(myGame->displayGame.g_pSurface); // Libération de la ressource occupée par le sprite
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface);
 
 
                  if(myGame->displayGame.g_pTexture){
-
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&rectangle); // Copie du sprite grâce au SDL_Renderer
+                        //  copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
                  }
                  else{
-                        fprintf(stdout,"Échec de création de la texture (%s)\n",SDL_GetError());
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
                 }
 
                 }
         else{
-            fprintf(stdout,"Échec de creation surface pour chaine (%s)\n",SDL_GetError());
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
 
 }
 
-void renderPongGame (PongGame myGame){
+void renderPlayerScore (PongGame *myGame, font mFont){
+
+        char playerScoreArr [1];
+        sprintf (playerScoreArr, "%i", myGame->score.player);
+        //fprintf(stdout,"valeur buffer:%c%c\n", playerScore[0],playerScore[1]);
+        SDL_Color fontColor={255,255,255};
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, playerScoreArr, fontColor);//Charge la police
+
+
+        if(myGame->displayGame.g_pSurface){
+
+
+                //Définition du rectangle pour blitter la chaine
+                SDL_Rect playerScoreRect;
+                playerScoreRect.x=SCREEN_WIDTH/2-100;//start point (x)
+                playerScoreRect.y=SCORE_Y;// start point (y)
+                playerScoreRect.w=SCORE_W; //Width
+                playerScoreRect.h=SCORE_H; //Height
+
+
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface);
+
+
+                 if(myGame->displayGame.g_pTexture){
+                        //  copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                 }
+                 else{
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+                }
+
+                }
+        else{
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+
+}
+
+void renderPongGame (PongGame myGame, font mFont){
     renderPaddles(&myGame);
-    renderLineSquares (&myGame, 5, 10, 300, 300, 255, 255, 255);
+    renderBoundaryLine (&myGame, 255, 255, 255);
     renderCircle (&myGame,255,255,255);
+    renderAIScore (&myGame, mFont);
+    renderPlayerScore (&myGame, mFont);
+
     SDL_RenderPresent(myGame.displayGame.g_pRenderer); // update the screen with any rendering performed since the previous cal
 
     SDL_SetRenderDrawColor(myGame.displayGame.g_pRenderer,0,0,0,255); // black background
@@ -270,13 +284,12 @@ void ResetBall (PongGame *myGame){
     }
 }
 
-
 //  Check if the ball hits a racket
 enum BOOL CheckCollisionBallPaddles (PongGame myGame){
     //Racket1
-   if ((myGame.ball.px-myGame.ball.radius)<=myGame.paddle1.w &&
+   if ((myGame.ball.px-myGame.ball.radius)<=PADDLE_WIDTH &&
                         myGame.ball.py>=myGame.paddle1.y &&
-                        myGame.ball.py<=(myGame.paddle1.y+myGame.paddle1.h)){
+                        myGame.ball.py<=(myGame.paddle1.y+PADDLE_HEIGHT)){
                             fprintf(stdout,"collision on left Racket\n");
                             return True;
                         }
@@ -285,16 +298,15 @@ enum BOOL CheckCollisionBallPaddles (PongGame myGame){
 
     //Racket2
 
-   if ((myGame.ball.px+myGame.ball.radius)>=(SCREEN_WIDTH-myGame.paddle1.w) &&
+   if ((myGame.ball.px+myGame.ball.radius)>=(SCREEN_WIDTH-PADDLE_WIDTH) &&
                     myGame.ball.py>=myGame.paddle2.y &&
-                    myGame.ball.py<=(myGame.paddle2.y+myGame.paddle2.h)){
+                    myGame.ball.py<=(myGame.paddle2.y+PADDLE_HEIGHT)){
                         fprintf(stdout,"collision on right Racket\n");
                         return True;
                     }
 
     return False;
 };
-
 
 void ballMovement(PongGame *myGame){
     if (CheckCollisionBallWalls (*myGame)== Right ||
