@@ -23,14 +23,14 @@ void initPongGame (PongGame *myGame){
 
 }
 
-void initFont (font *mFont){
+void initFont (font *myFont){
     if(TTF_Init() == -1)
         {
             fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
             exit(EXIT_FAILURE);
             }
 
-    mFont->g_font=TTF_OpenFont("./assets/fonts/gameplay/Gameplay.ttf",65);
+    myFont->g_font=TTF_OpenFont("./assets/fonts/gameplay/Gameplay.ttf",65);
 
 }
 
@@ -138,12 +138,12 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
     }
 }
 
-void renderAIScore (PongGame *myGame, font mFont){
+void renderAIScore (PongGame *myGame, font myFont){
         char AIScoreArr [1];
         sprintf (AIScoreArr, "%i", myGame->score.AI);
-        //fprintf(stdout,"valeur buffer:%c%c\n", playerScore[0],playerScore[1]);
+        fprintf(stdout,"score AI:%c%c\n", AIScoreArr[0],AIScoreArr[1]);
         SDL_Color fontColor={255,255,255};
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, AIScoreArr, fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, AIScoreArr, fontColor);//Charge la police
 
 
         if(myGame->displayGame.g_pSurface){
@@ -176,13 +176,13 @@ void renderAIScore (PongGame *myGame, font mFont){
 
 }
 
-void renderPlayerScore (PongGame *myGame, font mFont){
+void renderPlayerScore (PongGame *myGame, font myFont){
 
         char playerScoreArr [1];
         sprintf (playerScoreArr, "%i", myGame->score.player);
-        //fprintf(stdout,"valeur buffer:%c%c\n", playerScore[0],playerScore[1]);
+        fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
         SDL_Color fontColor={255,255,255};
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, playerScoreArr, fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);//Charge la police
 
 
         if(myGame->displayGame.g_pSurface){
@@ -215,12 +215,12 @@ void renderPlayerScore (PongGame *myGame, font mFont){
 
 }
 
-void renderPongGame (PongGame myGame, font mFont){
+void renderPongGame (PongGame myGame, font myFont){
     renderPaddles(&myGame);
     renderBoundaryLine (&myGame, 255, 255, 255);
     renderCircle (&myGame,255,255,255);
-    renderAIScore (&myGame, mFont);
-    renderPlayerScore (&myGame, mFont);
+    renderAIScore (&myGame, myFont);
+    renderPlayerScore (&myGame, myFont);
 
     SDL_RenderPresent(myGame.displayGame.g_pRenderer); // update the screen with any rendering performed since the previous cal
 
@@ -259,13 +259,24 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
 void HandleScore (PongGame *myGame){
     if (CheckCollisionBallWalls (*myGame)== Right){
             myGame->score.player+=1;
-            fprintf(stdout,"score Player:%i\n",myGame->score.player);
+       //     fprintf(stdout,"score Player:%i\n",myGame->score.player);
     }
 
     if (CheckCollisionBallWalls (*myGame)== Left){
             myGame->score.AI+=1;
-            fprintf(stdout,"score AI:%i\n",myGame->score.AI);
+       //     fprintf(stdout,"score AI:%i\n",myGame->score.AI);
             }
+
+}
+
+void checkVictoryConditions (int *isRunning, PongGame *myGame){
+    if (myGame->score.AI >=4){
+        *isRunning=0;
+    }
+
+    if (myGame->score.player >=4){
+        *isRunning=0;
+    }
 
 }
 

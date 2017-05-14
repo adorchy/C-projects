@@ -1,9 +1,4 @@
-
 #include "Pong.h"
-
-
-
-
 
 int main(int argc, char *argv[])
 {
@@ -33,6 +28,7 @@ int main(int argc, char *argv[])
             handleEvents(&isRunning,&myGame);
             renderPongGame (myGame, mFont);
             HandleScore (&myGame);
+            checkVictoryConditions (&isRunning, &myGame);
             ballMovement(&myGame);
 
            // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)
@@ -50,4 +46,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-
