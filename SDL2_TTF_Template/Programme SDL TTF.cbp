@@ -36,9 +36,9 @@
 			<Add option="-lmingw32" />
 			<Add library="C:/SDL2-2.0.5/i686-w64-mingw32/lib/libSDL2main.a" />
 			<Add library="C:/SDL2-2.0.5/i686-w64-mingw32/lib/libSDL2.dll.a" />
-			<Add library="../../../../SDL2-2.0.5/SDL2_ttf-devel-2.0.14-mingw.tar/SDL2_ttf-devel-2.0.14-mingw/SDL2_ttf-2.0.14/i686-w64-mingw32/lib/libSDL2_ttf.dll.a" />
+			<Add library="C:/SDL2-2.0.5/SDL2_ttf-2.0.14/i686-w64-mingw32/lib/libSDL2_ttf.dll.a" />
 			<Add directory="C:/SDL2-2.0.5/i686-w64-mingw32/lib" />
-			<Add directory="../../../../SDL2-2.0.5/SDL2_ttf-devel-2.0.14-mingw.tar/SDL2_ttf-devel-2.0.14-mingw/SDL2_ttf-2.0.14/i686-w64-mingw32/lib" />
+			<Add directory="C:/SDL2-2.0.5/SDL2_ttf-2.0.14/i686-w64-mingw32/lib" />
 		</Linker>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />

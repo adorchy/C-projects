@@ -330,7 +330,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1494711564 source:c:\users\arnaud\documents\programming\c projects\sdl2_ttf_template\main.c
+1494712604 source:c:\users\arnaud\documents\programming\c projects\sdl2_ttf_template\main.c
 	<stdio.h>
 	<stdlib.h>
 	<SDL2/SDL.h>
