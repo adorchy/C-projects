@@ -10,15 +10,15 @@ void initPongGame (PongGame *myGame){
  myGame->ball.radius=BALL_RADIUS;
 
  //padle 1
- myGame->paddle1.h=100;
- myGame->paddle1.w=13;
+ myGame->paddle1.h=PADDLE_HEIGH;
+ myGame->paddle1.w=PADDLE_WIDTH;
  myGame->paddle1.x=0;
  myGame->paddle1.y=0;
 
  //padle 2
- myGame->paddle2.h=100;
- myGame->paddle2.w=13;
- myGame->paddle2.x=SCREEN_WIDTH-myGame->paddle2.w;
+ myGame->paddle2.h=PADDLE_HEIGH;
+ myGame->paddle2.w=PADDLE_WIDTH;
+ myGame->paddle2.x=SCREEN_WIDTH-PADDLE_WIDTH;
  myGame->paddle2.y=0;
 
 
@@ -29,12 +29,24 @@ void initPongGame (PongGame *myGame){
 
 }
 
+void initFont (font *mFont){
+    if(TTF_Init() == -1)
+        {
+            fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+            exit(EXIT_FAILURE);
+            }
+
+    mFont->g_font=TTF_OpenFont("./assets/fonts/gameplay/Gameplay.ttf",65);
+
+}
+
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *displayGame){
 
 
     displayGame->g_pWindow=NULL;
     displayGame->g_pRenderer=NULL;
-    displayGame->g_psurface=NULL;
+    displayGame->g_pTexture=NULL;
+    displayGame->g_pSurface=NULL;
 
     //initialize SDL
 
@@ -71,8 +83,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
         case SDL_KEYDOWN:
                         switch (event.key.keysym.sym)
                             {
-                                case SDLK_UP: if (myGame->paddle1.y>0){myGame->paddle1.y-=20;myGame->paddle2.y-=20;} break;
-                                case SDLK_DOWN:  if (myGame->paddle1.y<SCREEN_HEIGHT-100) {myGame->paddle1.y+=20;myGame->paddle2.y+=20;} break;
+                                case SDLK_UP: if (myGame->paddle1.y>0){myGame->paddle1.y-=PADDLE_SPEED;myGame->paddle2.y-=PADDLE_SPEED;} break;
+                                case SDLK_DOWN:  if (myGame->paddle1.y<SCREEN_HEIGHT-100) {myGame->paddle1.y+=PADDLE_SPEED;myGame->paddle2.y+=PADDLE_SPEED;} break;
                             }
                             break;
 
@@ -153,6 +165,45 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
     }
 }
 
+void renderScore (PongGame *myGame, font mFont){
+
+        char playerScore [1];
+        sprintf (playerScore, "%i", myGame->score.player);
+        //fprintf(stdout,"valeur buffer:%c%c\n", playerScore[0],playerScore[1]);
+        SDL_Color fontColor={255,255,255};
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(mFont.g_font, playerScore, fontColor);//Charge la police
+
+
+        if(myGame->displayGame.g_pSurface){
+
+
+                //Définition du rectangle pour blitter la chaine
+                SDL_Rect rectangle;
+                rectangle.x=SCREEN_WIDTH/2-100;//debut x
+                rectangle.y=50;//debut y
+                rectangle.w=60; //Largeur
+                rectangle.h=60; //Hauteur
+
+
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface); // Préparation de la texture pour la chaine
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface); // Libération de la ressource occupée par le sprite
+
+
+                 if(myGame->displayGame.g_pTexture){
+
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&rectangle); // Copie du sprite grâce au SDL_Renderer
+                 }
+                 else{
+                        fprintf(stdout,"Échec de création de la texture (%s)\n",SDL_GetError());
+                }
+
+                }
+        else{
+            fprintf(stdout,"Échec de creation surface pour chaine (%s)\n",SDL_GetError());
+        }
+
+}
+
 void renderPongGame (PongGame myGame){
     renderPaddles(&myGame);
     renderLineSquares (&myGame, 5, 10, 300, 300, 255, 255, 255);
@@ -168,22 +219,22 @@ void renderPongGame (PongGame myGame){
 enum Collision CheckCollisionBallWalls (PongGame myGame){
     //check if ball hit right side
     if (myGame.ball.px >=SCREEN_WIDTH-BALL_RADIUS){
-        fprintf(stdout,"score right side (%s)\n",SDL_GetError());
+        fprintf(stdout,"score right side\n");
         return Right;
     }
     //check if ball hit left side
     if (myGame.ball.px <=BALL_RADIUS){
-        fprintf(stdout,"score left side (%s)\n",SDL_GetError());
+        fprintf(stdout,"score left side\n");
         return Left;
     }
     //check if ball hit top
     if (myGame.ball.py <= BALL_RADIUS){
-        fprintf(stdout,"collision on top (%s)\n",SDL_GetError());
+        fprintf(stdout,"collision on top\n");
         return Top;
     }
     //check if ball hit bottom
     if (myGame.ball.py >= SCREEN_HEIGHT-BALL_RADIUS){
-        fprintf(stdout,"collision on bottom (%s)\n",SDL_GetError());
+        fprintf(stdout,"collision on bottom\n");
         return Bottom;
     }
 
@@ -191,8 +242,21 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
     return None;
 };
 
+void HandleScore (PongGame *myGame){
+    if (CheckCollisionBallWalls (*myGame)== Right){
+            myGame->score.player+=1;
+            fprintf(stdout,"score Player:%i\n",myGame->score.player);
+    }
+
+    if (CheckCollisionBallWalls (*myGame)== Left){
+            myGame->score.AI+=1;
+            fprintf(stdout,"score AI:%i\n",myGame->score.AI);
+            }
+
+}
+
 void ResetBall (PongGame *myGame){
-    myGame->ball.px= SCREEN_WIDTH/3 + (rand () % 200);     // in the range SCREEN_WIDTH/2 to SCREEN_WIDTH/3
+    myGame->ball.px= SCREEN_WIDTH/3 + (rand () % 200);
     myGame->ball.py= SCREEN_HEIGHT/3 + (rand () % 200);
     myGame->ball.sx= (rand () % 2 + 4) + cos (rand () % 90);
     myGame->ball.sy= (rand () % 1 + 2) + cos (rand () % 90);
@@ -201,14 +265,9 @@ void ResetBall (PongGame *myGame){
         myGame->ball.sx*=-1;
     }
 
-
     if ((rand () % 2)==1) {
         myGame->ball.sy*=-1;
     }
-//
-
-
-
 }
 
 
@@ -218,7 +277,7 @@ enum BOOL CheckCollisionBallPaddles (PongGame myGame){
    if ((myGame.ball.px-myGame.ball.radius)<=myGame.paddle1.w &&
                         myGame.ball.py>=myGame.paddle1.y &&
                         myGame.ball.py<=(myGame.paddle1.y+myGame.paddle1.h)){
-                            fprintf(stdout,"collision on left Racket(%s)\n",SDL_GetError());
+                            fprintf(stdout,"collision on left Racket\n");
                             return True;
                         }
 
@@ -229,14 +288,15 @@ enum BOOL CheckCollisionBallPaddles (PongGame myGame){
    if ((myGame.ball.px+myGame.ball.radius)>=(SCREEN_WIDTH-myGame.paddle1.w) &&
                     myGame.ball.py>=myGame.paddle2.y &&
                     myGame.ball.py<=(myGame.paddle2.y+myGame.paddle2.h)){
-                        fprintf(stdout,"collision on right Racket(%s)\n",SDL_GetError());
+                        fprintf(stdout,"collision on right Racket\n");
                         return True;
                     }
 
     return False;
 };
 
-void BallMovement(PongGame *myGame){
+
+void ballMovement(PongGame *myGame){
     if (CheckCollisionBallWalls (*myGame)== Right ||
     CheckCollisionBallWalls (*myGame)== Left
     ){
@@ -250,27 +310,26 @@ void BallMovement(PongGame *myGame){
             //myGame->ball.sx*=cos (BOUNCE_WALL_ANGLE)*BOUNCE_SPEED;
 
             //speed cap
-            if (myGame->ball.sx>10){
-                    myGame->ball.sx=10.0;
+            if (myGame->ball.sx>BALL_RADIUS-2){
+                    myGame->ball.sx=BALL_RADIUS-2;
                     }
 
-            if (myGame->ball.sy<-10){
-                  myGame->ball.sy=-10.0;
+            if (myGame->ball.sy<-BALL_RADIUS-2){
+                  myGame->ball.sy=-BALL_RADIUS-2;
                   }
             }
     // if ball hit a racket
     if (CheckCollisionBallPaddles (*myGame)== True){
             myGame->ball.sx=-myGame->ball.sx*BOUNCE_SPEED;
             myGame->ball.sy*=1.3;
-            //myGame->ball.sy*=sin (BOUNCE_RACKET_ANGLE)*BOUNCE_SPEED;
 
             //speed cap
-            if (myGame->ball.sx<-10){
-                    myGame->ball.sx=-10.0;
+            if (myGame->ball.sx<-BALL_RADIUS-2){
+                    myGame->ball.sx=-BALL_RADIUS-2;
                     }
-
-            if (myGame->ball.sy>11){
-                  myGame->ball.sy=11.0;
+            //speed cap
+            if (myGame->ball.sy>BALL_RADIUS-2){
+                  myGame->ball.sy=BALL_RADIUS-2.0;
                   }
     }
 
@@ -305,8 +364,12 @@ void destroy(DisplayPongGame *displayGame){
         SDL_DestroyRenderer(displayGame->g_pRenderer);
 
     //Destroy surface
-     if(displayGame->g_psurface!=NULL)
-         SDL_FreeSurface(displayGame->g_psurface);
+     if(displayGame->g_pSurface!=NULL)
+         SDL_FreeSurface(displayGame->g_pSurface);
+
+    //Destroy texture
+     if(displayGame->g_pTexture!=NULL)
+         SDL_DestroyTexture(displayGame->g_pTexture);
 
     //Destroy window
     if(displayGame->g_pWindow!=NULL)

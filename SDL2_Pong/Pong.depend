@@ -334,19 +334,20 @@
 
 1494321418 c:\users\adorc\desktop\pong\define.h
 
-1494684869 source:c:\users\arnaud\documents\programming\c projects\sdl2_pong\main.c
+1494754601 source:c:\users\arnaud\documents\programming\c projects\sdl2_pong\main.c
 	"Pong.h"
 
-1494687088 c:\users\arnaud\documents\programming\c projects\sdl2_pong\pong.h
+1494732018 c:\users\arnaud\documents\programming\c projects\sdl2_pong\pong.h
 	"Define.h"
 
-1494704812 source:c:\users\arnaud\documents\programming\c projects\sdl2_pong\pongfunctions.c
+1494762684 source:c:\users\arnaud\documents\programming\c projects\sdl2_pong\pongfunctions.c
 	"Pong.h"
 
-1494673615 c:\users\arnaud\documents\programming\c projects\sdl2_pong\define.h
+1494730801 c:\users\arnaud\documents\programming\c projects\sdl2_pong\define.h
 	<stdio.h>
 	<stdlib.h>
 	<SDL2/SDL.h>
+	<SDL2/SDL_ttf.h>
 	<time.h>
 	<math.h>
 
@@ -365,4 +366,9 @@
 
 1494589085 source:c:\users\adorc\documents\c-projects\sdl2_pong\pongfunctions.c
 	"Pong.h"
+
+1454366534 c:\sdl2-2.0.5\i686-w64-mingw32\include\sdl2\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
 

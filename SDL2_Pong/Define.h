@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <time.h>
 #include <math.h>
 
@@ -17,10 +18,15 @@
 #define SCREEN_HEIGHT 780
 
 // Ball
-#define BALL_RADIUS 12
-#define BOUNCE_WALL_ANGLE 45
-#define BOUNCE_RACKET_ANGLE 45
+#define BALL_RADIUS 12.0
+#define BOUNCE_WALL_ANGLE 45.0
+#define BOUNCE_RACKET_ANGLE 45.0
 #define BOUNCE_SPEED 1.2
+
+// Paddle
+#define PADDLE_SPEED 20.0
+#define PADDLE_WIDTH 13
+#define PADDLE_HEIGH 100
 
 // Location of output text
 #define COMPUTER_SCORE_X 10

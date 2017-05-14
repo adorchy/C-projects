@@ -5,17 +5,18 @@
 
 
 
-
 int main(int argc, char *argv[])
 {
 
 
     PongGame myGame;
     int isRunning;
+    font mFont;
     unsigned int frameLimit = SDL_GetTicks() + 16;
 
     //Init myGame
     initPongGame (&myGame);
+    initFont (&mFont);
 
     //Init SDL
     if(initSDL("Pong",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN,&myGame.displayGame)){
@@ -31,7 +32,9 @@ int main(int argc, char *argv[])
             //Pour intercepter événements click
             handleEvents(&isRunning,&myGame);
             renderPongGame (myGame);
-            BallMovement(&myGame);
+            HandleScore (&myGame);
+            renderScore (&myGame, mFont);
+            ballMovement(&myGame);
 
            // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)
             delay(frameLimit);
@@ -42,6 +45,7 @@ int main(int argc, char *argv[])
 
         destroy(&myGame.displayGame); // free pointer
 
+        TTF_Quit();
         SDL_Quit(); //free memory
 
 

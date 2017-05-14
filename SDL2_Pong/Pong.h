@@ -22,7 +22,7 @@ typedef struct PongScore{
 
 typedef struct PongBall{
     float px, py, sx, sy;
-    int radius;
+    float radius;
 
 }PongBall;
 
@@ -30,7 +30,8 @@ typedef struct DisplayPongGame{
 
      SDL_Window *g_pWindow;
      SDL_Renderer *g_pRenderer;
-     SDL_Surface *g_psurface;
+     SDL_Texture *g_pTexture;
+     SDL_Surface *g_pSurface;
 
 }DisplayPongGame;
 
@@ -43,6 +44,12 @@ typedef struct PongGame{
 
 }PongGame;
 
+typedef struct font{
+
+    TTF_Font *g_font;
+
+}font;
+
 enum Collision {
     Top, Bottom, Right, Left, None
 };
@@ -54,6 +61,7 @@ enum BOOL{
 
 //prototypes
 void initPongGame (PongGame *myGame);
+void initFont (font *mFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
 void handleEvents(int *isRunning, PongGame *myGame);
@@ -62,12 +70,13 @@ void HandleAI ();
 void renderPaddles(PongGame *myGame);
 void renderLineSquares(PongGame *myGame, int width, int height, int positionX, int positionY, int colorR, int colorG, int colorB);
 void renderCircle(PongGame *myGame, int R, int G, int B);
+void renderScore (PongGame *myGame, font mFont);
 void renderPongGame (PongGame myGame);
 
 enum Collision CheckCollisionBallWalls (PongGame myGame);
-void HandleScore ();
+void HandleScore (PongGame *myGame);
 void ResetBall (PongGame *myGame);
 enum BOOL CheckCollisionBallPaddles (PongGame myGame);
-void BallMovement(PongGame *myGame);
+void ballMovement(PongGame *myGame);
 void delay(unsigned int frameLimit);
 void destroy(DisplayPongGame *myGame);
