@@ -62,8 +62,9 @@ void initFont (font *myFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
 void handleEvents(int *isRunning, PongGame *myGame);
-void handleAI ();
-void paddlesMove (PongGame *myGame);
+void handleAI(PongGame *myGame);
+void playerPaddlesMove (PongGame *myGame);
+void AIPaddlesMove (PongGame *myGame);
 
 void renderPaddles(PongGame *myGame);
 void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB);

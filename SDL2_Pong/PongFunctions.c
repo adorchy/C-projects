@@ -5,8 +5,8 @@ void initPongGame (PongGame *myGame){
 //ball
  myGame->ball.px=SCREEN_WIDTH/3;
  myGame->ball.py=SCREEN_HEIGHT/2;
- myGame->ball.sx=5.0;
- myGame->ball.sy=2.0;
+ myGame->ball.sx=1.0;
+ myGame->ball.sy=-0.5;
  myGame->ball.radius=BALL_RADIUS;
 
  //padle 1
@@ -71,8 +71,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
-                    case SDLK_UP: myGame->paddle1.dy-=PADDLE_SPEED; fprintf(stdout,"dy:%f\n", myGame->paddle1.dy);break;
-                    case SDLK_DOWN: myGame->paddle1.dy+=PADDLE_SPEED; fprintf(stdout,"dy:%f\n", myGame->paddle1.dy);break;
+                    case SDLK_UP: myGame->paddle1.dy-=PADDLE_MOVE_INCREMENT; break;
+                    case SDLK_DOWN: myGame->paddle1.dy+=PADDLE_MOVE_INCREMENT;break;
                     default:break;
                 }
                 break;
@@ -80,8 +80,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
             case SDL_KEYUP:
                 switch (event.key.keysym.sym)
                 {
-                   case SDLK_UP: myGame->paddle1.dy=myGame->paddle1.y; fprintf(stdout,"y:%f\n", myGame->paddle1.y);break;
-                   case SDLK_DOWN: myGame->paddle1.dy=myGame->paddle1.y; fprintf(stdout,"y:%f\n", myGame->paddle1.y);break;
+                   case SDLK_UP: myGame->paddle1.dy=myGame->paddle1.y;break;
+                   case SDLK_DOWN: myGame->paddle1.dy=myGame->paddle1.y;break;
                    default:break;
                 }
 
@@ -94,24 +94,84 @@ void handleEvents(int *isRunning, PongGame *myGame){
 }
 
 void handleAI(PongGame *myGame){
-    //myGame->paddle2.y-=PADDLE_SPEED;
-    //myGame->paddle2.y+=PADDLE_SPEED;
 
+    if (myGame->ball.py==(myGame->paddle2.y+PADDLE_HEIGHT/2)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            }
+
+/*
+    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/3)&&
+        myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT*2/3)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            }
+*/
+    if (myGame->ball.py>myGame->paddle2.y &&
+        myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT)){
+            if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)){
+                    myGame->paddle2.dy=myGame->paddle2.y;
+                    myGame->paddle2.dy-=8;
+            }
+
+            if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2)){
+                    myGame->paddle2.dy=myGame->paddle2.y;
+                    myGame->paddle2.dy+=8;
+            }
+    }
+
+
+
+    if (myGame->ball.py<(myGame->paddle2.y)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            myGame->paddle2.dy-=PADDLE_MOVE_INCREMENT;
+            }
+
+
+    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            myGame->paddle2.dy+=PADDLE_MOVE_INCREMENT;
+            }
+
+/*
+    if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            myGame->paddle2.dy-=PADDLE_SPEED/100;
+            }
+
+    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2)){
+            myGame->paddle2.dy=myGame->paddle2.y;
+            myGame->paddle2.dy+=PADDLE_SPEED/100;
+            }
+*/
 }
 
-void paddlesMove (PongGame *myGame){
+void playerPaddlesMove (PongGame *myGame){
+
     if (myGame->paddle1.y>myGame->paddle1.dy){
-        if (myGame->paddle1.y>0){
+        if (myGame->paddle1.y>0){ // if paddle not at top screen
                 myGame->paddle1.y-=4;
                 }
     }
 
     if (myGame->paddle1.y<myGame->paddle1.dy){
-        if (myGame->paddle1.y<SCREEN_HEIGHT-100){
+        if (myGame->paddle1.y<SCREEN_HEIGHT-100){ // if paddle not at bottom screen
             myGame->paddle1.y+=4;
             }
     }
+}
 
+void AIPaddlesMove (PongGame *myGame){
+
+    if (myGame->paddle2.y>myGame->paddle2.dy){
+        if (myGame->paddle2.y>0){ // if paddle not at top screen
+                myGame->paddle2.y-=4;
+                }
+    }
+
+    if (myGame->paddle2.y<myGame->paddle2.dy){
+        if (myGame->paddle2.y<SCREEN_HEIGHT-100){ // if paddle not at bottom screen
+            myGame->paddle2.y+=4;
+            }
+    }
 }
 
 void renderPaddles(PongGame *myGame) {
