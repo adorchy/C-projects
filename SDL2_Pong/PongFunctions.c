@@ -318,7 +318,7 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
 }
 
 void renderAIScore (PongGame *myGame, font myFont){
-        char AIScoreArr [1];
+        char AIScoreArr [0];
         sprintf (AIScoreArr, "%i", myGame->score.AI);
         //fprintf(stdout,"score AI:%c%c\n", AIScoreArr[0],AIScoreArr[1]);
         SDL_Color fontColor={255,255,255};
@@ -358,7 +358,7 @@ void renderAIScore (PongGame *myGame, font myFont){
 
 void renderPlayerScore (PongGame *myGame, font myFont){
 
-        char playerScoreArr [1];
+        char playerScoreArr [0];
         sprintf (playerScoreArr, "%i", myGame->score.player);
         //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
         SDL_Color fontColor={255,255,255};
@@ -437,12 +437,16 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
     return None;
 };
 
-void checkVictoryConditions (int *gameIsRunning, PongGame *myGame){
+void checkVictoryConditions (int *gameIsRunning, PongGame *myGame, font myFont){
     if (myGame->score.AI >=SCORE_TO_WIN){
+        endWindow (myGame, myFont, 0);
+        SDL_Delay(4000);
         *gameIsRunning=0;
     }
 
     if (myGame->score.player >=SCORE_TO_WIN){
+        endWindow (myGame, myFont, 1);
+        SDL_Delay(4000);
         *gameIsRunning=0;
     }
 
@@ -554,13 +558,51 @@ void delay(unsigned int frameLimit){
     }
 }
 
-void loserWindow (PongGame *myGame, font myFont){ //TODO
+void endWindow (PongGame *myGame, font myFont, int winner){ //TODO
+    SDL_Color fontColor={255,255,255};
+
+    if (winner==0)
+    {
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);//Charge la police
+    }
+    else
+    {
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);//Charge la police
+    }
+
+
+     if(myGame->displayGame.g_pSurface)
+     {
+
+                SDL_Rect Window1; //Rectangle to write character chain
+                Window1.x=MAIN_TEXT_X;//start point (x)
+                Window1.y=MAIN_TEXT_Y;// start point (y)
+                Window1.w=MAIN_TEXT_W; //Width
+                Window1.h=MAIN_TEXT_H; //Height
+
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface);
+
+                 if(myGame->displayGame.g_pTexture){
+                        //  copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&Window1); // Copie du sprite grâce au SDL_Renderer
+                        SDL_DestroyTexture(myGame->displayGame.g_pTexture);
+                        SDL_RenderPresent(myGame->displayGame.g_pRenderer);
+                 }
+                 else
+                 {
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+                 }
+
+    }
+        else
+        {
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+
 
 }
 
-void winnerWindow (PongGame *myGame, font myFont){ //TODO
-
-}
 
 void destroy(DisplayPongGame *displayGame){
 

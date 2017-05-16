@@ -28,20 +28,20 @@ int main(int argc, char *argv[])
         introWindow(&myGame, myFont);
     }
 
-    while(gameIsRunning){
-
+    do {
             handleGameEvents(&gameIsRunning,&myGame);
             playerPaddlesMove (&myGame);
             handleAI(&myGame);
             AIPaddlesMove (&myGame);
             ballMovementAndScore(&myGame);
-            checkVictoryConditions (&gameIsRunning, &myGame);
             renderPongGame (myGame, myFont);
+            checkVictoryConditions (&gameIsRunning, &myGame, myFont);
 
             delay(frameLimit);
             frameLimit = SDL_GetTicks() + 16; //60 fps cap
 
-    }
+    } while (gameIsRunning);
+
         // free pointer
         destroy(&myGame.displayGame);
         releaseFont (&myFont);

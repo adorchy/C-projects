@@ -78,12 +78,11 @@ void renderPongGame (PongGame myGame, font myFont);
 
 enum Collision CheckCollisionBallWalls (PongGame myGame);
 void HandleScore (PongGame *myGame);
-void checkVictoryConditions (int *gameIsRunning, PongGame *myGame);
+void checkVictoryConditions (int *gameIsRunning, PongGame *myGame, font myFont);
 void ResetBall (PongGame *myGame);
 enum BOOL CheckCollisionBallPaddles (PongGame myGame);
 void ballMovementAndScore(PongGame *myGame);
 void delay(unsigned int frameLimit);
-void loserWindow (PongGame *myGame, font myFont);
-void winnerWindow (PongGame *myGame, font myFont);
+void endWindow (PongGame *myGame, font myFont, int winner);
 void destroy(DisplayPongGame *myGame);
 void releaseFont (font *myFont);
