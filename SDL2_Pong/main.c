@@ -5,31 +5,37 @@ int main(int argc, char *argv[])
 
 
     PongGame myGame;
-    int isRunning;
-    font mFont;
+    int gameIsRunning;
+    int introIsRunning;
+    font myFont;
     unsigned int frameLimit = SDL_GetTicks() + 16;
 
     //Init myGame
     initPongGame (&myGame);
-    initFont (&mFont);
+    initFont (&myFont);
 
     //Init SDL
     if(initSDL("Pong",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN,&myGame.displayGame)){
-            isRunning=1;
+            gameIsRunning=1;
+            introIsRunning=1;
             srand (time(NULL)); // initialize random seed
     }else{
             fprintf(stdout,"Unable to initialize SDL (%s)\n",SDL_GetError());
             return EXIT_FAILURE;
     }
-    //introScreen(&myGame, mFont);
 
-    while(isRunning){
+    while (introIsRunning){
+        handleIntroEvents(&introIsRunning,&gameIsRunning,&myGame);
+        introScreen(&myGame, myFont);
+    }
+
+    while(gameIsRunning){
 
             //Pour intercepter événements click
-            handleEvents(&isRunning,&myGame);
+            handleGameEvents(&gameIsRunning,&myGame);
             handleAI(&myGame);
-            renderPongGame (myGame, mFont);
-            checkVictoryConditions (&isRunning, &myGame);
+            renderPongGame (myGame, myFont);
+            checkVictoryConditions (&gameIsRunning, &myGame);
             ballMovementAndScore(&myGame);
 
             playerPaddlesMove (&myGame);

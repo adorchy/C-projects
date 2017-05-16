@@ -66,28 +66,77 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
     return 1;
 }
 
+void handleIntroEvents(int *introIsRunning, int *gameIsRunning, PongGame *myGame){
+        SDL_Event event;
+
+    if(SDL_PollEvent(&event))
+    {
+        switch(event.type){
+            case SDL_QUIT:
+                *introIsRunning=0; *gameIsRunning= 0; break;
+                break;
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym)
+                {
+                    case SDLK_SPACE: *introIsRunning=0; break;
+                    default:break;
+                }
+                break;
+
+            case SDL_KEYUP:
+                break;
+
+            default:
+                break;
+        }
+    }
+
+}
+
 void introScreen(PongGame *myGame, font myFont){
 
-    SDL_Color fontColor={255,0,0};
+    SDL_Color fontColor={255,255,255};
 
     myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO PONG!", fontColor);//Charge la police
      if(myGame->displayGame.g_pSurface){
 
-
-                //Définition du rectangle pour blitter la chaine
-                SDL_Rect playerScoreRect;
-                playerScoreRect.x=SCREEN_WIDTH/3;//start point (x)
-                playerScoreRect.y=SCREEN_HEIGHT/3;// start point (y)
-                playerScoreRect.w=SCREEN_WIDTH/2; //Width
-                playerScoreRect.h=SCREEN_HEIGHT/5; //Height
+                SDL_Rect IntroRect1; //Rectangle to write character chain
+                IntroRect1.x=SCREEN_WIDTH/4;//start point (x)
+                IntroRect1.y=SCREEN_HEIGHT/3;// start point (y)
+                IntroRect1.w=SCREEN_WIDTH/2; //Width
+                IntroRect1.h=SCREEN_HEIGHT/5; //Height
 
                  myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
                  SDL_FreeSurface(myGame->displayGame.g_pSurface);
 
+                 if(myGame->displayGame.g_pTexture){
+                        //  copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect1); // Copie du sprite grâce au SDL_Renderer
+                 }
+                 else{
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+                }
+
+                }
+        else{
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+
+    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to continue", fontColor);//Charge la police
+     if(myGame->displayGame.g_pSurface){
+
+                SDL_Rect IntroRect2; //Rectangle to write character chain
+                IntroRect2.x=SCREEN_WIDTH/4;//start point (x)
+                IntroRect2.y=SCREEN_HEIGHT/1.8;// start point (y)
+                IntroRect2.w=SCREEN_WIDTH/4; //Width
+                IntroRect2.h=SCREEN_HEIGHT/10; //Height
+
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface);
 
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect2); // Copie du sprite grâce au SDL_Renderer
                         SDL_RenderPresent(myGame->displayGame.g_pRenderer);
                  }
                  else{
@@ -98,12 +147,10 @@ void introScreen(PongGame *myGame, font myFont){
         else{
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
-    SDL_Delay(4000);
-
 
 }
 
-void handleEvents(int *isRunning, PongGame *myGame){
+void handleGameEvents(int *gameIsRunning, PongGame *myGame){
 
     SDL_Event event;
 
@@ -111,7 +158,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
     {
         switch(event.type){
             case SDL_QUIT:
-                  *isRunning=0; break;
+                  *gameIsRunning=0; break;
+                break;
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
@@ -131,7 +179,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
 
                 break;
 
-            default:break;
+            default:
+                break;
         }
     }
 
@@ -380,13 +429,13 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
     return None;
 };
 
-void checkVictoryConditions (int *isRunning, PongGame *myGame){
+void checkVictoryConditions (int *gameIsRunning, PongGame *myGame){
     if (myGame->score.AI >=SCORE_TO_WIN){
-        *isRunning=0;
+        *gameIsRunning=0;
     }
 
     if (myGame->score.player >=SCORE_TO_WIN){
-        *isRunning=0;
+        *gameIsRunning=0;
     }
 
 }

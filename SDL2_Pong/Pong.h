@@ -61,8 +61,9 @@ void initPongGame (PongGame *myGame);
 void initFont (font *myFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
+void handleIntroEvents(int *introIsRunning, int *gameIsRunning, PongGame *myGame);
 void introScreen(PongGame *myGame, font myFont);
-void handleEvents(int *isRunning, PongGame *myGame);
+void handleGameEvents(int *gameIsRunning, PongGame *myGame);
 void handleAI(PongGame *myGame);
 void playerPaddlesMove (PongGame *myGame);
 void AIPaddlesMove (PongGame *myGame);
@@ -76,7 +77,7 @@ void renderPongGame (PongGame myGame, font myFont);
 
 enum Collision CheckCollisionBallWalls (PongGame myGame);
 //void HandleScore (PongGame *myGame);
-void checkVictoryConditions (int *isRunning, PongGame *myGame);
+void checkVictoryConditions (int *gameIsRunning, PongGame *myGame);
 void ResetBall (PongGame *myGame);
 enum BOOL CheckCollisionBallPaddles (PongGame myGame);
 void ballMovementAndScore(PongGame *myGame);
