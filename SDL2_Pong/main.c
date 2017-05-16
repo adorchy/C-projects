@@ -12,10 +12,9 @@ int main(int argc, char *argv[])
 
     //Init myGame
     initPongGame (&myGame);
-    initFont (&myFont);
-
+    initFont(&myFont);
     //Init SDL
-    if(initSDL("Pong",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN,&myGame.displayGame)){
+    if(initSDL("Pong",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN,&myGame)){
             gameIsRunning=1;
             introIsRunning=1;
             srand (time(NULL)); // initialize random seed
@@ -26,32 +25,30 @@ int main(int argc, char *argv[])
 
     while (introIsRunning){
         handleIntroEvents(&introIsRunning,&gameIsRunning,&myGame);
-        introScreen(&myGame, myFont);
+        introWindow(&myGame, myFont);
     }
 
     while(gameIsRunning){
 
-            //Pour intercepter événements click
             handleGameEvents(&gameIsRunning,&myGame);
-            handleAI(&myGame);
-            renderPongGame (myGame, myFont);
-            checkVictoryConditions (&gameIsRunning, &myGame);
-            ballMovementAndScore(&myGame);
-
             playerPaddlesMove (&myGame);
+            handleAI(&myGame);
             AIPaddlesMove (&myGame);
+            ballMovementAndScore(&myGame);
+            checkVictoryConditions (&gameIsRunning, &myGame);
+            renderPongGame (myGame, myFont);
 
-           // Gestion des 60 fps (1000ms/60 = 16.6 -> 16)
             delay(frameLimit);
-
-            frameLimit = SDL_GetTicks() + 16;
+            frameLimit = SDL_GetTicks() + 16; //60 fps cap
 
     }
+        // free pointer
+        destroy(&myGame.displayGame);
+        releaseFont (&myFont);
 
-        destroy(&myGame.displayGame); // free pointer
-
+        //free memory
         TTF_Quit();
-        SDL_Quit(); //free memory
+        SDL_Quit();
 
 
     return EXIT_SUCCESS;

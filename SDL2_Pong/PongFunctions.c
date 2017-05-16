@@ -42,22 +42,22 @@ void initFont (font *myFont){
 
 }
 
-int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *displayGame){
+int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,PongGame *myGame){
 
-    displayGame->g_pWindow=NULL;
-    displayGame->g_pRenderer=NULL;
-    displayGame->g_pTexture=NULL;
-    displayGame->g_pSurface=NULL;
+    myGame->displayGame.g_pWindow=NULL;
+    myGame->displayGame.g_pRenderer=NULL;
+    myGame->displayGame.g_pTexture=NULL;
+    myGame->displayGame.g_pSurface=NULL;
 
     //initialize SDL
 
     if(SDL_Init(SDL_INIT_VIDEO)>=0) // Loading video (return 0 on success)
     {
             //if succeeded create our window
-            displayGame->g_pWindow=SDL_CreateWindow(title,xpos,ypos,width,height,flags);
+            myGame->displayGame.g_pWindow=SDL_CreateWindow(title,xpos,ypos,width,height,flags);
             //if succeeded create window, create our render
-            if(displayGame->g_pWindow!=NULL){
-                displayGame->g_pRenderer=SDL_CreateRenderer(displayGame->g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
+            if(myGame->displayGame.g_pWindow!=NULL){
+                myGame->displayGame.g_pRenderer=SDL_CreateRenderer(myGame->displayGame.g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
             }
     }else{
 
@@ -93,18 +93,19 @@ void handleIntroEvents(int *introIsRunning, int *gameIsRunning, PongGame *myGame
 
 }
 
-void introScreen(PongGame *myGame, font myFont){
+void introWindow(PongGame *myGame, font myFont){
 
     SDL_Color fontColor={255,255,255};
 
     myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO PONG!", fontColor);//Charge la police
-     if(myGame->displayGame.g_pSurface){
+     if(myGame->displayGame.g_pSurface)
+     {
 
                 SDL_Rect IntroRect1; //Rectangle to write character chain
-                IntroRect1.x=SCREEN_WIDTH/4;//start point (x)
-                IntroRect1.y=SCREEN_HEIGHT/3;// start point (y)
-                IntroRect1.w=SCREEN_WIDTH/2; //Width
-                IntroRect1.h=SCREEN_HEIGHT/5; //Height
+                IntroRect1.x=MAIN_TEXT_X;//start point (x)
+                IntroRect1.y=MAIN_TEXT_Y;// start point (y)
+                IntroRect1.w=MAIN_TEXT_W; //Width
+                IntroRect1.h=MAIN_TEXT_H; //Height
 
                  myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
                  SDL_FreeSurface(myGame->displayGame.g_pSurface);
@@ -112,41 +113,48 @@ void introScreen(PongGame *myGame, font myFont){
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
                         SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect1); // Copie du sprite grâce au SDL_Renderer
+                        SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
-                 else{
+                 else
+                 {
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
-                }
+                 }
 
-                }
-        else{
+    }
+        else
+        {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
 
-    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to continue", fontColor);//Charge la police
-     if(myGame->displayGame.g_pSurface){
+    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//Charge la police
+     if(myGame->displayGame.g_pSurface)
+     {
 
                 SDL_Rect IntroRect2; //Rectangle to write character chain
-                IntroRect2.x=SCREEN_WIDTH/4;//start point (x)
-                IntroRect2.y=SCREEN_HEIGHT/1.8;// start point (y)
-                IntroRect2.w=SCREEN_WIDTH/4; //Width
-                IntroRect2.h=SCREEN_HEIGHT/10; //Height
+                IntroRect2.x=START_X;//start point (x)
+                IntroRect2.y=START_Y;// start point (y)
+                IntroRect2.w=START_W; //Width
+                IntroRect2.h=START_H; //Height
 
                  myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
                  SDL_FreeSurface(myGame->displayGame.g_pSurface);
 
-                 if(myGame->displayGame.g_pTexture){
+                 if(myGame->displayGame.g_pTexture)
+                 {
                         //  copy a portion of the texture to the current rendering target
                         SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect2); // Copie du sprite grâce au SDL_Renderer
+                        SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                         SDL_RenderPresent(myGame->displayGame.g_pRenderer);
                  }
-                 else{
+                 else
+                 {
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
-                }
-
-                }
-        else{
+                 }
+    }
+    else
+    {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
-        }
+    }
 
 }
 
@@ -220,7 +228,6 @@ void handleAI(PongGame *myGame){
     }
 }
 
-
 void AIPaddlesMove (PongGame *myGame){
 
     if (myGame->paddle2.y>myGame->paddle2.dy){
@@ -253,7 +260,6 @@ void AIPaddlesMove (PongGame *myGame){
         }
     }
 }
-
 
 void renderPaddles(PongGame *myGame) {
 
@@ -337,6 +343,7 @@ void renderAIScore (PongGame *myGame, font myFont){
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
                         SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
                  else{
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
@@ -376,6 +383,7 @@ void renderPlayerScore (PongGame *myGame, font myFont){
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
                         SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
                  else{
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
@@ -546,6 +554,14 @@ void delay(unsigned int frameLimit){
     }
 }
 
+void loserWindow (PongGame *myGame, font myFont){ //TODO
+
+}
+
+void winnerWindow (PongGame *myGame, font myFont){ //TODO
+
+}
+
 void destroy(DisplayPongGame *displayGame){
 
       //Destroy render
@@ -563,5 +579,13 @@ void destroy(DisplayPongGame *displayGame){
     //Destroy window
     if(displayGame->g_pWindow!=NULL)
         SDL_DestroyWindow(displayGame->g_pWindow);
+
+}
+
+void releaseFont (font *myFont){
+    if (myFont->g_font)
+    {
+        TTF_CloseFont (myFont->g_font);
+    }
 
 }

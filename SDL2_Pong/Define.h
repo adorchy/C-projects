@@ -20,8 +20,6 @@
 
 // Ball
 #define BALL_RADIUS 12.0
-#define BOUNCE_WALL_ANGLE 45.0
-#define BOUNCE_RACKET_ANGLE 45.0
 #define BOUNCE_SPEED 1.2
 
 // Boundary line
@@ -34,9 +32,23 @@
 #define PADDLE_WIDTH 13
 #define PADDLE_HEIGHT 100
 
-// Location of output text
+// Position of score windows
 #define SCORE_Y 50
 #define SCORE_W 60
 #define SCORE_H 60
+
+// Position of "Welcome to Pong" window
+ #define  MAIN_TEXT_X SCREEN_WIDTH/2-SCREEN_WIDTH/4;//start point (x)
+ #define  MAIN_TEXT_Y SCREEN_HEIGHT/3;// start point (y)
+ #define  MAIN_TEXT_W SCREEN_WIDTH/2; //Width
+ #define  MAIN_TEXT_H SCREEN_HEIGHT/8; //Height
+
+ // Position of "Press space to start" window
+
+ #define START_X SCREEN_WIDTH/2-SCREEN_WIDTH/8;//start point (x)
+ #define START_Y SCREEN_HEIGHT/1.8;// start point (y)
+ #define START_W SCREEN_WIDTH/4; //Width
+ #define START_H SCREEN_HEIGHT/15; //Height
+
 
 #endif // DEFINE_H_INCLUDED
