@@ -61,6 +61,7 @@ void initPongGame (PongGame *myGame);
 void initFont (font *myFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,DisplayPongGame *myDisplay);
 
+void introScreen(PongGame *myGame, font myFont);
 void handleEvents(int *isRunning, PongGame *myGame);
 void handleAI(PongGame *myGame);
 void playerPaddlesMove (PongGame *myGame);

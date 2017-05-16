@@ -6,7 +6,7 @@ void initPongGame (PongGame *myGame){
  myGame->ball.px=SCREEN_WIDTH/3;
  myGame->ball.py=SCREEN_HEIGHT/2;
  myGame->ball.sx=4.0;
- myGame->ball.sy=-0.50;
+ myGame->ball.sy=0.50;
  myGame->ball.radius=BALL_RADIUS;
 
  //padle 1
@@ -28,11 +28,17 @@ void initPongGame (PongGame *myGame){
 void initFont (font *myFont){
     if(TTF_Init() == -1)
         {
-            fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+            fprintf(stderr, "Error unable to initialize TTF_Init : %s\n", TTF_GetError());
             exit(EXIT_FAILURE);
             }
 
     myFont->g_font=TTF_OpenFont("./assets/fonts/gameplay/Gameplay.ttf",65);
+
+    if (!myFont->g_font)
+    {
+            fprintf(stderr, "Error font is missing : %s\n", TTF_GetError());
+            exit(EXIT_FAILURE);
+    }
 
 }
 
@@ -60,6 +66,43 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Displ
     return 1;
 }
 
+void introScreen(PongGame *myGame, font myFont){
+
+    SDL_Color fontColor={255,0,0};
+
+    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO PONG!", fontColor);//Charge la police
+     if(myGame->displayGame.g_pSurface){
+
+
+                //Définition du rectangle pour blitter la chaine
+                SDL_Rect playerScoreRect;
+                playerScoreRect.x=SCREEN_WIDTH/3;//start point (x)
+                playerScoreRect.y=SCREEN_HEIGHT/3;// start point (y)
+                playerScoreRect.w=SCREEN_WIDTH/2; //Width
+                playerScoreRect.h=SCREEN_HEIGHT/5; //Height
+
+                 myGame->displayGame.g_pTexture = SDL_CreateTextureFromSurface(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pSurface);
+                 SDL_FreeSurface(myGame->displayGame.g_pSurface);
+
+
+                 if(myGame->displayGame.g_pTexture){
+                        //  copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderPresent(myGame->displayGame.g_pRenderer);
+                 }
+                 else{
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+                }
+
+                }
+        else{
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+    SDL_Delay(4000);
+
+
+}
+
 void handleEvents(int *isRunning, PongGame *myGame){
 
     SDL_Event event;
@@ -72,8 +115,8 @@ void handleEvents(int *isRunning, PongGame *myGame){
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
-                    case SDLK_UP: myGame->paddle1.dy-=220; break;
-                    case SDLK_DOWN: myGame->paddle1.dy+=220;break;
+                    case SDLK_UP: myGame->paddle1.dy-=PADDLE_MOVE_INCREMENT; break;
+                    case SDLK_DOWN: myGame->paddle1.dy+=PADDLE_MOVE_INCREMENT;break;
                     default:break;
                 }
                 break;
@@ -98,102 +141,70 @@ void playerPaddlesMove (PongGame *myGame){
 
     if (myGame->paddle1.y>myGame->paddle1.dy){
         if (myGame->paddle1.y>0){ // if paddle not at top screen
-                myGame->paddle1.y-=7;
+                myGame->paddle1.y-=PADDLE_MAX_SPEED;
                 }
     }
 
     if (myGame->paddle1.y<myGame->paddle1.dy){
-        if (myGame->paddle1.y<SCREEN_HEIGHT-100){ // if paddle not at bottom screen
-            myGame->paddle1.y+=7;
+        if (myGame->paddle1.y<SCREEN_HEIGHT-PADDLE_HEIGHT){ // if paddle not at bottom screen
+            myGame->paddle1.y+=PADDLE_MAX_SPEED;
             }
     }
 }
 
 void handleAI(PongGame *myGame){
 
-/*   if (myGame->ball.py ==(myGame->paddle2.y+PADDLE_HEIGHT/2)){
-            myGame->paddle2.dy=myGame->paddle2.y;
-            }
 
-
-    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/3)&&
-        myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT*2/3)){
-            myGame->paddle2.dy=myGame->paddle2.y;
-            }
-*/
-    if (myGame->ball.py>myGame->paddle2.y &&
-        myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT)){ // if ball at paddle level
-            if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)){ // if ball at top part of paddle
-                    myGame->paddle2.dy=myGame->paddle2.y;
-                    myGame->paddle2.dy-=70;
-            }
-
-            if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2)){ // if ball at bottom part of paddle
-                    myGame->paddle2.dy=myGame->paddle2.y;
-                    myGame->paddle2.dy+=70;
-            }
+    if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)) // if ball above top part of paddle
+    {
+        myGame->paddle2.dy=myGame->paddle2.y;
+        myGame->paddle2.dy-=myGame->paddle2.y+PADDLE_HEIGHT/2-myGame->ball.py;
     }
-
-
-
-    if (myGame->ball.py<(myGame->paddle2.y)){ // if ball above paddle
-            myGame->paddle2.dy=myGame->paddle2.y;
-            myGame->paddle2.dy-=220;
-            }
-
-
-    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT)){ // if ball below paddle
-            myGame->paddle2.dy=myGame->paddle2.y;
-            myGame->paddle2.dy+=220;
-            }
-
-/*
-    if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)){
-            myGame->paddle2.dy=myGame->paddle2.y;
-            myGame->paddle2.dy-=PADDLE_SPEED/100;
-            }
-
-    if (myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2)){
-            myGame->paddle2.dy=myGame->paddle2.y;
-            myGame->paddle2.dy+=PADDLE_SPEED/100;
-            }
-*/
+    else if ((myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2))) // if ball below bottom part of paddle
+    {
+        myGame->paddle2.dy=myGame->paddle2.y;
+        myGame->paddle2.dy+=myGame->ball.py-(myGame->paddle2.y+PADDLE_HEIGHT/2);
+    }
+    else
+    {
+     myGame->paddle2.dy=myGame->paddle2.y; // paddle stay at his current position
+    }
 }
+
 
 void AIPaddlesMove (PongGame *myGame){
 
-
-    if (myGame->paddle2.y>myGame->paddle2.dy)
+    if (myGame->paddle2.y>myGame->paddle2.dy){
+        if (myGame->paddle2.y>0) // if paddle not at top screen
         {
-            if (myGame->paddle2.y>0) // if paddle not at top screen
-            {
-                if(myGame->ball.py>myGame->paddle2.y &&
-                    myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT)){
-                    myGame->paddle2.y-=1;
-        }
-        else {
-                myGame->paddle2.y-=7;
 
-                }
+            if (myGame->paddle2.y-myGame->paddle2.dy>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
+            {
+                myGame->paddle2.y-=PADDLE_MAX_SPEED; //cap the speed at 7 pixels
+            }
+            else
+            {
+                 myGame->paddle2.y-=myGame->paddle2.y-myGame->paddle2.dy; // adaptative speed to get a smooth move
+            }
         }
     }
 
-    if (myGame->paddle2.y<myGame->paddle2.dy)
+    if (myGame->paddle2.dy>myGame->paddle2.y)
+    {
+        if (myGame->paddle2.y<SCREEN_HEIGHT-PADDLE_HEIGHT) // if paddle not at bottom screen
         {
-            if (myGame->paddle2.y<SCREEN_HEIGHT-100) // if paddle not at bottom screen
+            if (myGame->paddle2.dy-myGame->paddle2.y>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
             {
-                if (myGame->ball.py>myGame->paddle2.y &&
-                    myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT))
-                    {
-                        myGame->paddle2.y+=1;
-                    }
-        else
-        {
-            myGame->paddle2.y+=7;
-        }
+                myGame->paddle2.y+=PADDLE_MAX_SPEED; //cap the speed at 7 pixels
+            }
+            else
+            {
+                myGame->paddle2.y+=myGame->paddle2.dy-myGame->paddle2.y; // adaptative speed to get a smooth move
             }
         }
+    }
 }
+
 
 void renderPaddles(PongGame *myGame) {
 

@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
             fprintf(stdout,"Unable to initialize SDL (%s)\n",SDL_GetError());
             return EXIT_FAILURE;
     }
+    //introScreen(&myGame, mFont);
 
     while(isRunning){
 
