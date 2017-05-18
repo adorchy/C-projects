@@ -30,9 +30,9 @@ int main(int argc, char *argv[])
 
     do {
             handleGameEvents(&gameIsRunning,&myGame);
-            playerPaddlesMove (&myGame);
+            playerPaddleMove (&myGame);
             handleAI(&myGame);
-            AIPaddlesMove (&myGame);
+            AIPaddleMove (&myGame);
             ballMovementAndScore(&myGame);
             renderPongGame (myGame, myFont);
             checkVictoryConditions (&gameIsRunning, &myGame, myFont);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     } while (gameIsRunning);
 
         // free pointer
-        destroy(&myGame.displayGame);
+        destroy(&myGame);
         releaseFont (&myFont);
 
         //free memory

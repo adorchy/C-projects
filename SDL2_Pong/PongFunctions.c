@@ -10,13 +10,13 @@ void initPongGame (PongGame *myGame){
  myGame->ball.radius=BALL_RADIUS;
 
  //padle 1
- myGame->paddle1.x=0;
- myGame->paddle1.y=0;
+ myGame->paddle1.px=0;
+ myGame->paddle1.py=0;
  myGame->paddle1.dy=0;
 
  //padle 2
- myGame->paddle2.x=SCREEN_WIDTH-PADDLE_WIDTH;
- myGame->paddle2.y=0;
+ myGame->paddle2.px=SCREEN_WIDTH-PADDLE_WIDTH;
+ myGame->paddle2.py=0;
  myGame->paddle2.dy=0;
 
  //score
@@ -25,6 +25,11 @@ void initPongGame (PongGame *myGame){
 
 }
 
+/********************************************************************
+PURPOSE : font loading
+INPUT : fontObject
+OUTPUT : g_font
+*********************************************************************/
 void initFont (font *myFont){
     if(TTF_Init() == -1)
         {
@@ -39,9 +44,13 @@ void initFont (font *myFont){
             fprintf(stderr, "Error font is missing : %s\n", TTF_GetError());
             exit(EXIT_FAILURE);
     }
-
 }
 
+/********************************************************************
+PURPOSE : SDL initialization
+INPUT : title, window position, window size, flags, gameObject
+OUTPUT: g_pWindow
+*********************************************************************/
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,PongGame *myGame){
 
     myGame->displayGame.g_pWindow=NULL;
@@ -55,7 +64,7 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,PongG
     {
             //if succeeded create our window
             myGame->displayGame.g_pWindow=SDL_CreateWindow(title,xpos,ypos,width,height,flags);
-            //if succeeded create window, create our render
+            //if succeeded create window, then create our render
             if(myGame->displayGame.g_pWindow!=NULL){
                 myGame->displayGame.g_pRenderer=SDL_CreateRenderer(myGame->displayGame.g_pWindow,-1,SDL_RENDERER_PRESENTVSYNC);
             }
@@ -66,6 +75,11 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,PongG
     return 1;
 }
 
+/********************************************************************
+PURPOSE : events management (input=>keyboard)
+INPUT : 2 states variables, gameObject
+OUTPUT : introIsRunning or (gameIsRunning and introIsRunning)
+*********************************************************************/
 void handleIntroEvents(int *introIsRunning, int *gameIsRunning, PongGame *myGame){
         SDL_Event event;
 
@@ -90,9 +104,13 @@ void handleIntroEvents(int *introIsRunning, int *gameIsRunning, PongGame *myGame
                 break;
         }
     }
-
 }
 
+/********************************************************************
+PURPOSE : create and display an introduction window
+INPUT : gameObject, fontObject
+OUTPUT : window with 2 textures containing text
+*********************************************************************/
 void introWindow(PongGame *myGame, font myFont){
 
     SDL_Color fontColor={255,255,255};
@@ -101,7 +119,7 @@ void introWindow(PongGame *myGame, font myFont){
      if(myGame->displayGame.g_pSurface)
      {
 
-                SDL_Rect IntroRect1; //Rectangle to write character chain
+                SDL_Rect IntroRect1; //Rectangle used to display character chain
                 IntroRect1.x=MAIN_TEXT_X;//start point (x)
                 IntroRect1.y=MAIN_TEXT_Y;// start point (y)
                 IntroRect1.w=MAIN_TEXT_W; //Width
@@ -112,27 +130,25 @@ void introWindow(PongGame *myGame, font myFont){
 
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect1); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect1);
                         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
                  else
                  {
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
                  }
-
     }
         else
         {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
 
-    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//Charge la police
+    myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//load font
      if(myGame->displayGame.g_pSurface)
      {
-
                 SDL_Rect IntroRect2; //Rectangle to write character chain
-                IntroRect2.x=START_X;//start point (x)
-                IntroRect2.y=START_Y;// start point (y)
+                IntroRect2.x=START_X; //start point (x)
+                IntroRect2.y=START_Y; // start point (y)
                 IntroRect2.w=START_W; //Width
                 IntroRect2.h=START_H; //Height
 
@@ -142,7 +158,7 @@ void introWindow(PongGame *myGame, font myFont){
                  if(myGame->displayGame.g_pTexture)
                  {
                         //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect2); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&IntroRect2);
                         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                         SDL_RenderPresent(myGame->displayGame.g_pRenderer);
                  }
@@ -155,9 +171,15 @@ void introWindow(PongGame *myGame, font myFont){
     {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
     }
-
 }
 
+/********************************************************************************************
+PURPOSE :
+Events management (input=>keyboard)
+Indicates in what direction player's paddle should go when player press Up or Down arrow key
+INPUT : state variable, gameObject
+OUTPUT : gameIsRunning or paddle1.dy
+*********************************************************************************************/
 void handleGameEvents(int *gameIsRunning, PongGame *myGame){
 
     SDL_Event event;
@@ -180,8 +202,8 @@ void handleGameEvents(int *gameIsRunning, PongGame *myGame){
             case SDL_KEYUP:
                 switch (event.key.keysym.sym)
                 {
-                   case SDLK_UP: myGame->paddle1.dy=myGame->paddle1.y;break;
-                   case SDLK_DOWN: myGame->paddle1.dy=myGame->paddle1.y;break;
+                   case SDLK_UP: myGame->paddle1.dy=myGame->paddle1.py;break;
+                   case SDLK_DOWN: myGame->paddle1.dy=myGame->paddle1.py;break;
                    default:break;
                 }
 
@@ -191,89 +213,112 @@ void handleGameEvents(int *gameIsRunning, PongGame *myGame){
                 break;
         }
     }
-
 }
 
-void playerPaddlesMove (PongGame *myGame){
+/***************************************************************************
+PURPOSE :
+Move player's paddle and give a smooth move to player's paddle
+Paddle max speed: 7 pixels per 16 ms
+INPUT : gameObject
+OUTPUT : paddle1.py
+****************************************************************************/
+void playerPaddleMove (PongGame *myGame){
 
-    if (myGame->paddle1.y>myGame->paddle1.dy){
-        if (myGame->paddle1.y>0){ // if paddle not at top screen
-                myGame->paddle1.y-=PADDLE_MAX_SPEED;
+    if (myGame->paddle1.py>myGame->paddle1.dy){
+        if (myGame->paddle1.py>0){ // if paddle not at top screen
+                myGame->paddle1.py-=PADDLE_MAX_SPEED;
                 }
     }
 
-    if (myGame->paddle1.y<myGame->paddle1.dy){
-        if (myGame->paddle1.y<SCREEN_HEIGHT-PADDLE_HEIGHT){ // if paddle not at bottom screen
-            myGame->paddle1.y+=PADDLE_MAX_SPEED;
+    if (myGame->paddle1.py<myGame->paddle1.dy){
+        if (myGame->paddle1.py<SCREEN_HEIGHT-PADDLE_HEIGHT){ // if paddle not at bottom screen
+            myGame->paddle1.py+=PADDLE_MAX_SPEED;
             }
     }
 }
 
+/*******************************************************************************
+PURPOSE : create an AI managing paddle2's direction according to ball position
+INPUT : gameObject
+OUTPUT : paddle2.py
+********************************************************************************/
 void handleAI(PongGame *myGame){
 
 
-    if (myGame->ball.py<(myGame->paddle2.y+PADDLE_HEIGHT/2)) // if ball above top part of paddle
+    if (myGame->ball.py<(myGame->paddle2.py+PADDLE_HEIGHT/2)) // if ball above top part of paddle
     {
-        myGame->paddle2.dy=myGame->paddle2.y;
-        myGame->paddle2.dy-=myGame->paddle2.y+PADDLE_HEIGHT/2-myGame->ball.py;
+        myGame->paddle2.dy=myGame->paddle2.py;
+        myGame->paddle2.dy-=myGame->paddle2.py+PADDLE_HEIGHT/2-myGame->ball.py;
     }
-    else if ((myGame->ball.py>(myGame->paddle2.y+PADDLE_HEIGHT/2))) // if ball below bottom part of paddle
+    else if ((myGame->ball.py>(myGame->paddle2.py+PADDLE_HEIGHT/2))) // if ball below bottom part of paddle
     {
-        myGame->paddle2.dy=myGame->paddle2.y;
-        myGame->paddle2.dy+=myGame->ball.py-(myGame->paddle2.y+PADDLE_HEIGHT/2);
+        myGame->paddle2.dy=myGame->paddle2.py;
+        myGame->paddle2.dy+=myGame->ball.py-(myGame->paddle2.py+PADDLE_HEIGHT/2);
     }
     else
     {
-     myGame->paddle2.dy=myGame->paddle2.y; // paddle stay at his current position
+     myGame->paddle2.dy=myGame->paddle2.py; // paddle stay at his current position
     }
 }
 
-void AIPaddlesMove (PongGame *myGame){
+/***************************************************************************
+PURPOSE :
+Move AI's paddle and give a smooth move to AI's paddle
+Paddle max speed: 7 pixels per 16 ms
+INPUT : gameObject
+OUTPUT : paddle2.py
+****************************************************************************/
+void AIPaddleMove (PongGame *myGame){
 
-    if (myGame->paddle2.y>myGame->paddle2.dy){
-        if (myGame->paddle2.y>0) // if paddle not at top screen
+    if (myGame->paddle2.py>myGame->paddle2.dy){
+        if (myGame->paddle2.py>0) // if paddle not at top screen
         {
 
-            if (myGame->paddle2.y-myGame->paddle2.dy>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
+            if (myGame->paddle2.py-myGame->paddle2.dy>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
             {
-                myGame->paddle2.y-=PADDLE_MAX_SPEED; //cap the speed at 7 pixels
+                myGame->paddle2.py-=PADDLE_MAX_SPEED; //cap the speed at 7 pixels per 16 ms
             }
             else
             {
-                 myGame->paddle2.y-=myGame->paddle2.y-myGame->paddle2.dy; // adaptative speed to get a smooth move
+                 myGame->paddle2.py-=myGame->paddle2.py-myGame->paddle2.dy; // adaptative speed to get a smooth move
             }
         }
     }
 
-    if (myGame->paddle2.dy>myGame->paddle2.y)
+    if (myGame->paddle2.dy>myGame->paddle2.py)
     {
-        if (myGame->paddle2.y<SCREEN_HEIGHT-PADDLE_HEIGHT) // if paddle not at bottom screen
+        if (myGame->paddle2.py<SCREEN_HEIGHT-PADDLE_HEIGHT) // if paddle not at bottom screen
         {
-            if (myGame->paddle2.dy-myGame->paddle2.y>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
+            if (myGame->paddle2.dy-myGame->paddle2.py>=PADDLE_MAX_SPEED) // if paddle's center 7 pixels away or more from the ball
             {
-                myGame->paddle2.y+=PADDLE_MAX_SPEED; //cap the speed at 7 pixels
+                myGame->paddle2.py+=PADDLE_MAX_SPEED; //cap the speed at 7 pixels
             }
             else
             {
-                myGame->paddle2.y+=myGame->paddle2.dy-myGame->paddle2.y; // adaptative speed to get a smooth move
+                myGame->paddle2.py+=myGame->paddle2.dy-myGame->paddle2.py; // adaptative speed to get a smooth move
             }
         }
     }
 }
 
+/********************************************************************
+PURPOSE : render the paddles
+INPUT : gameObject
+OUTPUT : 2 rectangles
+*********************************************************************/
 void renderPaddles(PongGame *myGame) {
 
-       //Définition du rectangle 1 a dessiner
+       //Paddle1
         SDL_Rect rectangle;
-        rectangle.x=myGame->paddle1.x;//debut x
-        rectangle.y=myGame->paddle1.y;//debut y
+        rectangle.x=myGame->paddle1.px;//debut x
+        rectangle.y=myGame->paddle1.py;//debut y
         rectangle.w=PADDLE_WIDTH; //Largeur
         rectangle.h=PADDLE_HEIGHT; //Hauteur
 
-        //Définition du rectangle 2 a dessiner
+        //Paddle2
         SDL_Rect rectangle2;
-        rectangle2.x=myGame->paddle2.x;//debut x
-        rectangle2.y=myGame->paddle2.y;//debut y
+        rectangle2.x=myGame->paddle2.px;//debut x
+        rectangle2.y=myGame->paddle2.py;//debut y
         rectangle2.w=PADDLE_WIDTH; //Largeur
         rectangle2.h=PADDLE_HEIGHT; //Hauteur
 
@@ -282,9 +327,13 @@ void renderPaddles(PongGame *myGame) {
 
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle); // fill a rectangle on the current rendering target with the drawing color
         SDL_RenderFillRect(myGame->displayGame.g_pRenderer, &rectangle2);
-
 }
 
+/********************************************************************
+PURPOSE : render a boundary line middle of the screen (width)
+INPUT : gameObject, color (RGB)
+OUTPUT : chain of espaced rectangles
+*********************************************************************/
 void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB){
 
         int y;
@@ -302,6 +351,11 @@ void renderBoundaryLine(PongGame *myGame, int colorR, int colorG, int colorB){
         }
 }
 
+/********************************************************************
+PURPOSE : render the pong ball
+INPUT : gameObject, color (RGB)
+OUTPUT : a filled circle
+*********************************************************************/
 void renderCircle(PongGame *myGame, int R, int G, int B){
     SDL_SetRenderDrawColor(myGame->displayGame.g_pRenderer, R, G, B, SDL_ALPHA_OPAQUE);
     int radiusMin;
@@ -317,6 +371,11 @@ void renderCircle(PongGame *myGame, int R, int G, int B){
     }
 }
 
+/********************************************************************
+PURPOSE : display AI's score
+INPUT : gameObject, fontObject
+OUTPUT : 1 texture containing AI's score
+*********************************************************************/
 void renderAIScore (PongGame *myGame, font myFont){
         char AIScoreArr [0];
         sprintf (AIScoreArr, "%i", myGame->score.AI);
@@ -328,7 +387,7 @@ void renderAIScore (PongGame *myGame, font myFont){
         if(myGame->displayGame.g_pSurface){
 
 
-                //Définition du rectangle pour blitter la chaine
+                //Rectangle used to display character chain
                 SDL_Rect playerScoreRect;
                 playerScoreRect.x=SCREEN_WIDTH/2-SCORE_W+100;//start point (x)
                 playerScoreRect.y=SCORE_Y;// start point (y)
@@ -342,7 +401,7 @@ void renderAIScore (PongGame *myGame, font myFont){
 
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect);
                         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
                  else{
@@ -353,22 +412,26 @@ void renderAIScore (PongGame *myGame, font myFont){
         else{
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
-
 }
 
+/********************************************************************
+PURPOSE : display player's score
+INPUT : gameObject, fontObject
+OUTPUT : 1 texture containing player's score
+*********************************************************************/
 void renderPlayerScore (PongGame *myGame, font myFont){
 
         char playerScoreArr [0];
         sprintf (playerScoreArr, "%i", myGame->score.player);
         //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
         SDL_Color fontColor={255,255,255};
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);
 
 
         if(myGame->displayGame.g_pSurface){
 
 
-                //Définition du rectangle pour blitter la chaine
+                // Rectangle used to display character chain
                 SDL_Rect playerScoreRect;
                 playerScoreRect.x=SCREEN_WIDTH/2-100;//start point (x)
                 playerScoreRect.y=SCORE_Y;// start point (y)
@@ -381,8 +444,8 @@ void renderPlayerScore (PongGame *myGame, font myFont){
 
 
                  if(myGame->displayGame.g_pTexture){
-                        //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect); // Copie du sprite grâce au SDL_Renderer
+                        // copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&playerScoreRect);
                         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                  }
                  else{
@@ -393,9 +456,14 @@ void renderPlayerScore (PongGame *myGame, font myFont){
         else{
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
-
 }
 
+/********************************************************************
+PURPOSE :
+Procedure calling all the render functions
+Give a black background to the game
+INPUT : gameObject, fontObject, color (RGB)
+*********************************************************************/
 void renderPongGame (PongGame myGame, font myFont){
     renderPaddles(&myGame);
     renderBoundaryLine (&myGame, 255, 255, 255);
@@ -407,10 +475,13 @@ void renderPongGame (PongGame myGame, font myFont){
 
     SDL_SetRenderDrawColor(myGame.displayGame.g_pRenderer,0,0,0,255); // black background
     SDL_RenderClear(myGame.displayGame.g_pRenderer);
-
 }
 
-//  Check if the ball hits a wall
+/********************************************************************
+PURPOSE : Check if the ball hits a window's border
+INPUT : gameObject
+OUTPUT : Return Right or Left or Top or Bottom or None
+*********************************************************************/
 enum Collision CheckCollisionBallWalls (PongGame myGame){
     //check if ball hit right side
     if (myGame.ball.px >=SCREEN_WIDTH-BALL_RADIUS){
@@ -437,6 +508,11 @@ enum Collision CheckCollisionBallWalls (PongGame myGame){
     return None;
 };
 
+/********************************************************************
+PURPOSE : Check if the AI or player has won.
+INPUT : state variable, gameObject, fontObject
+OUTPUT : gameIsRunning
+*********************************************************************/
 void checkVictoryConditions (int *gameIsRunning, PongGame *myGame, font myFont){
     if (myGame->score.AI >=SCORE_TO_WIN){
         endWindow (myGame, myFont, 0);
@@ -449,10 +525,14 @@ void checkVictoryConditions (int *gameIsRunning, PongGame *myGame, font myFont){
         SDL_Delay(4000);
         *gameIsRunning=0;
     }
-
 }
 
-void ResetBall (PongGame *myGame){
+/********************************************************************
+PURPOSE : Reset ball position and direction
+INPUT : gameObject
+OUTPUT : ball.px, ball.py, ball.sx, ball.sy
+*********************************************************************/
+void resetBall (PongGame *myGame){
     myGame->ball.px= SCREEN_WIDTH/3 + (rand () % 200);
     myGame->ball.py= SCREEN_HEIGHT/3 + (rand () % 200);
     myGame->ball.sx= (rand () % 2 + 4) + cos (rand () % 90);
@@ -467,23 +547,25 @@ void ResetBall (PongGame *myGame){
     }
 }
 
-//  Check if the ball hits a racket
+/********************************************************************
+PURPOSE : Check if the ball hits a racket
+INPUT : gameObject
+OUTPUT : return True or False
+*********************************************************************/
 enum BOOL CheckCollisionBallPaddles (PongGame myGame){
     //Racket1
    if ((myGame.ball.px-myGame.ball.radius)<=PADDLE_WIDTH &&
-                        myGame.ball.py>=myGame.paddle1.y &&
-                        myGame.ball.py<=(myGame.paddle1.y+PADDLE_HEIGHT)){
+                        myGame.ball.py>=myGame.paddle1.py &&
+                        myGame.ball.py<=(myGame.paddle1.py+PADDLE_HEIGHT)){
                             fprintf(stdout,"collision on left Racket\n");
                             return True;
                         }
 
-
-
     //Racket2
 
    if ((myGame.ball.px+myGame.ball.radius)>=(SCREEN_WIDTH-PADDLE_WIDTH) &&
-                    myGame.ball.py>=myGame.paddle2.y &&
-                    myGame.ball.py<=(myGame.paddle2.y+PADDLE_HEIGHT)){
+                    myGame.ball.py>=myGame.paddle2.py &&
+                    myGame.ball.py<=(myGame.paddle2.py+PADDLE_HEIGHT)){
                         fprintf(stdout,"collision on right Racket\n");
                         return True;
                     }
@@ -491,17 +573,24 @@ enum BOOL CheckCollisionBallPaddles (PongGame myGame){
     return False;
 };
 
+/************************************************************************
+PURPOSE :
+Change ball direction and position according to collision events
+Increment player's score and AI's score according to collision events
+INPUT : gameObject
+OUTPUT : ball.px, ball.py and/or ball.sy and/or (score.player or score.AI)
+*************************************************************************/
 void ballMovementAndScore(PongGame *myGame){
     // if ball hit right wall
     if (CheckCollisionBallWalls (*myGame)== Right){
         myGame->score.player+=1;
-        ResetBall (myGame);
+        resetBall (myGame);
     }
 
     // if ball hit left wall
     if (CheckCollisionBallWalls (*myGame)== Left){
         myGame->score.AI+=1;
-        ResetBall (myGame);
+        resetBall (myGame);
     }
 
     // if ball hit Top or Bottom
@@ -509,39 +598,38 @@ void ballMovementAndScore(PongGame *myGame){
         CheckCollisionBallWalls (*myGame)== Bottom
         ){
             myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
-            //myGame->ball.sx*=cos (BOUNCE_WALL_ANGLE)*BOUNCE_SPEED;
 
-            //speed cap
-            if (myGame->ball.sx>BALL_RADIUS-2){
-                    myGame->ball.sx=BALL_RADIUS-2;
-                    }
-
-            if (myGame->ball.sy<-BALL_RADIUS-3){
-                  myGame->ball.sy=-BALL_RADIUS-3;
-                  }
             }
     // if ball hit a racket
     if (CheckCollisionBallPaddles (*myGame)== True){
             myGame->ball.sx=-myGame->ball.sx*BOUNCE_SPEED;
             myGame->ball.sy*=1.3;
-
-            //speed cap
-            if (myGame->ball.sx<-BALL_RADIUS-2){
-                    myGame->ball.sx=-BALL_RADIUS-2;
-                    }
-            //speed cap
-            if (myGame->ball.sy>BALL_RADIUS-3){
-                  myGame->ball.sy=BALL_RADIUS-3.0;
-                  }
     }
 
+    //ball speed cap
+    if (myGame->ball.sx>BALL_RADIUS-2){
+            myGame->ball.sx=BALL_RADIUS-2;
+            }
+
+    if (myGame->ball.sy<-BALL_RADIUS-2){
+          myGame->ball.sy=-BALL_RADIUS-2;
+          }
+
+    //ball movement
     myGame->ball.px+=myGame->ball.sx;
     myGame->ball.py+=myGame->ball.sy;
 
 }
 
+/********************************************************************
+PURPOSE :
+FrameRate management
+Capped at 60fps(1 frame/16ms => (1/60fps)*1000 =16.67ms)
+INPUT : FrameLimit
+OUTPUT : Delay=>frameLimit
+*********************************************************************/
 void delay(unsigned int frameLimit){
-    // Gestion des 60 fps (images/seconde) soit environ 1 frame toutes les 16 ms
+
     unsigned int ticks = SDL_GetTicks();
 
     if (frameLimit < ticks)
@@ -558,23 +646,27 @@ void delay(unsigned int frameLimit){
     }
 }
 
-void endWindow (PongGame *myGame, font myFont, int winner){ //TODO
+/********************************************************************
+PURPOSE : create and display a window displaying the winner
+INPUT : gameObject, fontObject
+OUTPUT : window with 1 texture containing the name of the winner.
+*********************************************************************/
+void endWindow (PongGame *myGame, font myFont, int winner){
     SDL_Color fontColor={255,255,255};
 
     if (winner==0)
     {
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);
     }
     else
     {
-        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);//Charge la police
+        myGame->displayGame.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);
     }
-
 
      if(myGame->displayGame.g_pSurface)
      {
 
-                SDL_Rect Window1; //Rectangle to write character chain
+                SDL_Rect Window1; //Rectangle used to display character chain
                 Window1.x=MAIN_TEXT_X;//start point (x)
                 Window1.y=MAIN_TEXT_Y;// start point (y)
                 Window1.w=MAIN_TEXT_W; //Width
@@ -585,7 +677,7 @@ void endWindow (PongGame *myGame, font myFont, int winner){ //TODO
 
                  if(myGame->displayGame.g_pTexture){
                         //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&Window1); // Copie du sprite grâce au SDL_Renderer
+                        SDL_RenderCopy(myGame->displayGame.g_pRenderer,myGame->displayGame.g_pTexture,NULL,&Window1);
                         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
                         SDL_RenderPresent(myGame->displayGame.g_pRenderer);
                  }
@@ -593,41 +685,46 @@ void endWindow (PongGame *myGame, font myFont, int winner){ //TODO
                  {
                         fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
                  }
-
     }
         else
         {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
-
-
 }
 
+/********************************************************************
+PURPOSE :
+Destroy the rendering context, the texture and the surface
+Free RGB surface
+INPUT: GameObject
+*********************************************************************/
+void destroy(PongGame *myGame){
 
-void destroy(DisplayPongGame *displayGame){
-
-      //Destroy render
-     if(displayGame->g_pRenderer!=NULL)
-        SDL_DestroyRenderer(displayGame->g_pRenderer);
+    //Destroy render
+    if(myGame->displayGame.g_pRenderer!=NULL)
+        SDL_DestroyRenderer(myGame->displayGame.g_pRenderer);
 
     //Destroy surface
-     if(displayGame->g_pSurface!=NULL)
-         SDL_FreeSurface(displayGame->g_pSurface);
+    if(myGame->displayGame.g_pSurface!=NULL)
+         SDL_FreeSurface(myGame->displayGame.g_pSurface);
 
     //Destroy texture
-     if(displayGame->g_pTexture!=NULL)
-         SDL_DestroyTexture(displayGame->g_pTexture);
+    if(myGame->displayGame.g_pTexture!=NULL)
+         SDL_DestroyTexture(myGame->displayGame.g_pTexture);
 
     //Destroy window
-    if(displayGame->g_pWindow!=NULL)
-        SDL_DestroyWindow(displayGame->g_pWindow);
+    if(myGame->displayGame.g_pWindow!=NULL)
+        SDL_DestroyWindow(myGame->displayGame.g_pWindow);
 
 }
 
+/********************************************************************
+PURPOSE : Free the memory used by font
+INPUT : fontObject
+*********************************************************************/
 void releaseFont (font *myFont){
     if (myFont->g_font)
     {
         TTF_CloseFont (myFont->g_font);
     }
-
 }
