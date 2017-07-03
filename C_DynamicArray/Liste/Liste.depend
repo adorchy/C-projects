@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1497608381 source:c:\users\adorc\desktop\introcpp\liste\liste.c
+	"Liste.h"
+
+1497608469 c:\users\adorc\desktop\introcpp\liste\liste.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1497608381 source:c:\users\adorc\desktop\introcpp\liste\main.c
+	"Liste.h"
+
